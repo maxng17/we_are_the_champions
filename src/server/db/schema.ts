@@ -23,11 +23,12 @@ export const teams = createTable(
   "teams",
   {
     id: serial("id").primaryKey(),
+    userId: varchar('userId', {length: 256}).notNull(),
     name: varchar("name", { length: 256 }).notNull(),
     group: varchar('group', {length: 1}).notNull(),
     totalScore: varchar('total_score', {length: 4}),
     alternateScore: varchar('alternate_score', {length: 4}),
-    regDate: date("reg_date"),
+    regDate: varchar("reg_date", {length: 16}),
     wins: varchar('wins', {length: 4}),
     losts: varchar('losts', {length: 4}),
     draws: varchar('draws', {length: 4}),
@@ -37,20 +38,18 @@ export const teams = createTable(
     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
       () => new Date()
     ),
-  },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
-  })
+  }
 );
 
 export const matches = createTable(
   'matches', 
   {
     id: serial('id').primaryKey(),
-    teamAname: varchar('teamA_name', { length: 256 }).notNull(),
-    teamBname: varchar('teamB_name', { length: 256}).notNull(),
-    teamAgoals: varchar('teamA_goals', { length: 256 }).notNull(),
-    teamBgoals: varchar('teamB_goals', { length: 256}).notNull(),
+    userId: varchar('userId', {length: 256}).notNull(),
+    team1name: varchar('team1_name', { length: 256 }).notNull(),
+    team2name: varchar('team2_name', { length: 256}).notNull(),
+    team1goals: varchar('team1_goals', { length: 256 }).notNull(),
+    team2goals: varchar('team2_goals', { length: 256}).notNull(),
   }
 )
 
@@ -58,6 +57,7 @@ export const logs = createTable(
   'logs',
   {
     id: serial('id').primaryKey(),
+    userId: varchar('userId', {length: 256}).notNull(),
     operation: varchar('operation', {length: 256}).notNull(),
   }
 )
