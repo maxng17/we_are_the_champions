@@ -63,12 +63,12 @@ export default function StartPage() {
    
    const handleMatchSubmit = () => {
         if (!matchesInput.trim()) {
-            setTeamError('No data entered!')
+            setMatchError('No data entered!')
             return 
         }
         const userInput = matchesInput.split('\n').filter(line => line.trim() != '')
         if (matchesInput.length === 0) {
-            setTeamError('No data entered!')
+            setMatchError('No data entered!')
             return
         }
 
@@ -80,12 +80,12 @@ export default function StartPage() {
             const [team1, team2, score1, score2] = line.split(' ');
 
             if (!team1 || !team2 || !score1 || !score2) {
-                setTeamError(`Error on line ${x + 1}: All fields are required (Team 1 Team 2 Team 1 goals Team 2 goals)`);
+                setMatchError(`Error on line ${x + 1}: All fields are required (Team 1, Team 2, Team 1 goals, Team 2 goals)`);
                 return;
             }
         }
 
-        setTeamError('');
+        setMatchError('');
         const userData = userInput.map(line => {
             const [team1, team2, score1, score2] = line.trim().split(' ');
             return {team1, team2, score1, score2};
@@ -93,10 +93,10 @@ export default function StartPage() {
 
         try {
             userData.map(data => console.log(data))
-            setTeamsInput('')
+            setMatchesInput('')
             setShowMatchesModal(false)
         } catch (error) {
-            setTeamError('Error occured while submitting the data. Please try again!')
+            setMatchError('Error occured while submitting the data. Please try again!')
             console.log(error)
         }
    }
@@ -146,7 +146,7 @@ export default function StartPage() {
 
             {showMatchesModal && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm">
-                    <div className="w-[700px] bg-white rounded flex flex-col">
+                    <div className="w-[700px] bg-white rounded flex flex-col p-6">
                         <h2>Add Match Details</h2>
                         <textarea 
                             value={matchesInput}
