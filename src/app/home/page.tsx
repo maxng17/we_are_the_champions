@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TeamTable from "../_components/teamTable";
 import MatchesTable from "../_components/matchesTable";
+import { useAuth } from "@clerk/nextjs";
 
 export default function StartPage() {
     const [teams, setTeams] = useState([]);
@@ -17,10 +18,22 @@ export default function StartPage() {
     const [teamError, setTeamError] = useState('');
     const [matchError, setMatchError] = useState('');
 
+    const {userId} = useAuth()  
+
     const isAddTeamsDisabled =teams.length >= 12;
     const isAddMatchesDisabled = teams.length >= 20;
 
-   const handleTeamSubmit = () => {
+    useEffect(() => {
+        if (userId) {
+            // Fetch team records when the component mounts
+            fetch(`/api/teams?userId=${userId}`)
+                .then(response => response.json())
+                .then(data => setTeams(data.teams))
+                .catch(error => console.error('Error fetching teams:', error));
+        }
+    }, [userId]);
+
+   const handleTeamSubmit = async () => {
         if (teamsInput.trim().length === 0) {
             setTeamError('No data entered!')
             return
@@ -37,7 +50,15 @@ export default function StartPage() {
                 setTeamError(`Error on line ${x + 1}: The line is empty.`);
                 return;
             }
-            const [name, registrationDate, groupNumber] = line.split(' ');
+
+            const fields = line.split(' ');
+
+            if (fields.length !== 3) {
+                setTeamError(`Error on line ${x + 1}: Each line must contain exactly three fields (Name, Registration Date, Group Number).`);
+                return;
+            }
+
+            const [name, registrationDate, groupNumber] = fields;
 
             if (!name || !registrationDate || !groupNumber) {
                 setTeamError(`Error on line ${x + 1}: All fields are required (Name, Registration Date, Group Number)`);
@@ -50,11 +71,24 @@ export default function StartPage() {
             const [name, registrationDate, groupNumber] = line.trim().split(' ');
             return { name, registrationDate, groupNumber };
         });
-
+        const userIdInput = userId
         try {
-            userData.map(data => console.log(data))
-            setTeamsInput('')
-            setShowTeamsModal(false)
+            const response = await fetch('/api/teams', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json' },
+                body: JSON.stringify({userIdInput, userData})
+            });
+
+            if (response.ok) {
+                const updatedResponse = await fetch(`/api/teams?userId=${userId}`);
+                const updatedData = await updatedResponse.json();
+                setTeams(updatedData.teams);
+                setTeamsInput('')
+                setShowTeamsModal(false)
+            } else {
+                const error = await response.json();
+                setTeamError(`Error: ${error.message}`);
+            }
         } catch (error) {
             setTeamError('Error occured while submitting the data. Please try again!')
             console.log(error)

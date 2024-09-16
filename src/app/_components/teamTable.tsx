@@ -1,7 +1,7 @@
 interface TeamInputs {
     teamName: string,
-    regDate: string,
-    group: string,
+    registrationDate: string,
+    groupNumber: string,
 }
 
 interface ListOfTeamInputs {
@@ -25,8 +25,8 @@ export default function TeamTable({ teams } : ListOfTeamInputs) {
                         teams.map((team, idx) => (
                             <tr key={idx}>
                                 <td className="px-4 py-2 border border-gray-300">{team.teamName}</td>
-                                <td className="px-4 py-2 border border-gray-300">{team.regDate}</td>
-                                <td className="px-4 py-2 border border-gray-300">{team.group}</td>
+                                <td className="px-4 py-2 border border-gray-300">{team.registrationDate}</td>
+                                <td className="px-4 py-2 border border-gray-300">{team.groupNumber}</td>
                             </tr>
                         ))
                     ) : (
