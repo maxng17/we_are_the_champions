@@ -1,16 +1,17 @@
 import Link from "next/link";
-import { db } from "~/server/db";
-
-export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  const data = await db.query.teams.findMany()
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      {data.map((team) => (
-        <div key={team.id}>{team.name}</div>
-      ))}
+    <main className="flex min-h-screen flex-col items-center justify-center">
+      <h1 className="font-bold text-3xl">
+        Govtech Annual Soccer
+      </h1>
+      <Link href='/sign-up'>
+        <span className="text-blue-500 underline text-lg hover:text-blue-700">
+          Create an account now!
+        </span>
+      </Link>
     </main>
   );
 }
