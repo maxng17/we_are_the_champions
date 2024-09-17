@@ -11,6 +11,18 @@ export interface MatchInput {
     score2: string;
 }
 
+export interface LeaderBoardsData {
+    regDate: Date;
+    totalPoints: number;
+    alternatePoints: number;
+    winsNum: number;
+    lostsNum: number;
+    drawsNum: number;
+    totalScoreNum: number;
+    teamGroup: string;
+    teamName: string;
+}
+
 export interface ErrorResponse {
     message: string
 }
