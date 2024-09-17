@@ -1,7 +1,8 @@
 import { db } from "~/server/db";
 import { NextResponse } from "next/server";
 import { teams } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { Team } from "~/app/_types/types";
 
 interface UserTeamData {
     name: string, 
@@ -12,6 +13,12 @@ interface UserTeamData {
 interface TeamPostRequest {
     userIdInput: string,
     userData: UserTeamData[]
+}
+
+interface TeamPutRequest {
+    editInput: string,
+    teamToBeEditted: Team,
+    userId: string,
 }
 
 export const dynamic = "force-dynamic";
@@ -60,5 +67,19 @@ export async function GET(request: Request) {
     } catch (error) {
         console.error('Error fetching teams:', error);
         return NextResponse.json({ message: 'Failed to fetch teams' }, { status: 500 });
+    }
+}
+
+export async function PUT(request: Request) {
+    const {editInput, teamToBeEditted, userId} = await request.json() as TeamPutRequest;
+    const [name, registrationDate, groupNumber] = editInput.split(' ');
+
+    try {
+        await db.update(teams).set({
+            regDate: registrationDate
+        }).where(and(eq(teams.name, teamToBeEditted.teamName), eq(teams.userId, userId)))
+        return NextResponse.json({ status: 204 });
+    } catch (error) {
+        return NextResponse.json({ message: 'Failed to update team data' }, { status: 500 });
     }
 }

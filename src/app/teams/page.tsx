@@ -15,6 +15,10 @@ export default function TeamPage() {
     const [teamsInput ,setTeamsInput] = useState('');
     const [teamError, setTeamError] = useState('');
 
+    const [teamToBeEditted, setTeamToBeEditted] = useState<Team | null>(null);
+    const [editInput, setEditInput] = useState('');
+    const [showEditModal, setShowEditModal] = useState(false)
+
     const {userId} = useAuth(); 
 
     const isAddTeamsDisabled =teams.length >= 12;
@@ -128,6 +132,54 @@ export default function TeamPage() {
         }
     }
 
+    const handleEdit = (team: Team) => {
+        setTeamToBeEditted(team);
+        setEditInput(`${team.teamName} ${team.registrationDate} ${team.groupNumber}`);
+        setShowEditModal(true);
+    };
+
+    const handleEditSubmit = async () => {
+        if (teamToBeEditted === null) {
+            return
+        }
+        if (editInput.trim().length === 0) {
+            setTeamError('No data entered!')
+            return
+        }
+        const [name, registrationDate, groupNumber] = editInput.split(' ');
+        if (!name || !registrationDate || !groupNumber) {
+            setTeamError('Must contain exactly three fields (Name, Registration Date, Group Number)');
+            return;
+        } 
+
+        try {
+            const response = await fetch('/api/teams', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json',},
+                body: JSON.stringify({
+                    editInput, teamToBeEditted, userId
+                }),
+            })
+
+            if (response.ok) {
+                const updatedResponse = await fetch(`/api/teams?userId=${userId}`);
+                const updatedData = await updatedResponse.json() as TeamsGetResponse;
+                setTeams(updatedData.teams);
+                setTeamToBeEditted(null)
+                setEditInput('')
+                setShowEditModal(false)
+                setTeamError('')
+            } else {
+                const error = await response.json() as ErrorResponse;
+                setTeamError(`Error: ${error.message}`);
+            }
+        } catch (error) {
+            const e = error as Error;
+            setTeamError('Error occured while submitting the data. Please try again!')
+            console.log(e.message)
+        }
+    }
+
     return (
         <div className='min-h-screen flex flex-col p-4'>
             <div className="flex justify-end mb-4 space-x-4 p-4">
@@ -140,7 +192,7 @@ export default function TeamPage() {
             </div>
             <div className="flex p-4 flex-grow justify-center space-x-8">
                 <div className="flex justify-center w-[80%]">
-                    <TeamTable teams={teams} />
+                    <TeamTable teams={teams} onEdit={handleEdit} />
                 </div>
             </div>
 
@@ -162,6 +214,32 @@ export default function TeamPage() {
                                 setTeamError('');
                                 setTeamsInput('');
                                 setShowTeamsModal(false);
+                                setTeamToBeEditted(null);
+                            }} className="px-4 py-2 text-white bg-red-500 border border-red-700 rounded-lg">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showEditModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm p-2">
+                    <div className="w-[700px] bg-white rounded flex flex-col p-6 ">
+                        <h2 className="text-2xl text-center mb-4">Edit Team Details</h2>
+                        <textarea 
+                            value={editInput}
+                            onChange={(e) => setEditInput(e.target.value)}
+                            rows={12}
+                            placeholder="Enter teams data here..."
+                            className="rounded-lg p-4 mt-2 text-lg border-2 border-black mb-4"
+                        />
+                        {teamError && <p className="text-red-500 mt-2">{teamError}</p>}
+                        <div className="flex justify-between mt-4 px-4">
+                            <button onClick={handleEditSubmit} className="px-4 py-2 text-white bg-green-500 border border-green-700 rounded-lg">Submit</button>
+                            <button onClick={() => {
+                                setTeamError('');
+                                setEditInput('');
+                                setTeamToBeEditted(null)
+                                setShowEditModal(false);
                             }} className="px-4 py-2 text-white bg-red-500 border border-red-700 rounded-lg">Cancel</button>
                         </div>
                     </div>
