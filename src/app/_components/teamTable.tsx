@@ -22,7 +22,7 @@ export default function TeamTable( {teams}  : TeamTableProps) {
                         teams.map((team, idx) => (
                             <tr key={idx}>
                                 <td className="px-4 py-2 border border-gray-300 text-center">
-                                    <Link href={`/${team.teamName}`} className="text-blue-500 hover:underline">
+                                    <Link href={`/teams/${team.teamName}`} className="text-blue-500 hover:underline">
                                         {team.teamName}
                                     </Link>
                                 </td>

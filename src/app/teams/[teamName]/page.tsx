@@ -3,8 +3,8 @@
 import { useAuth } from "@clerk/nextjs"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
-import { MatchInput, TeamDetailsData } from "../_types/types"
-import MatchesTable from "../_components/matchesTable"
+import { MatchInput, TeamDetailsData } from "../../_types/types"
+import MatchesTable from "../../_components/matchesTable"
 
 interface TeamNameGetResponse {
     teamDetails: TeamDetailsData | null;
@@ -18,41 +18,45 @@ export default function TeamDetailPage() {
     const [loading, setLoading] = useState(true);
 
     const { userId } = useAuth();
-    const { teamName } = useParams() as { teamName?: string };
+    const { teamName } = useParams();
 
     useEffect(() => {
-        const fetchTeam = async () => {
-            if (!teamName || !userId) {
-                setError('Invalid parameters.');
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/teams/details?userId=${userId}&teamName=${encodeURIComponent(teamName)}`);
-                
-                if (!response.ok) {
-                    throw new Error('Failed to fetch team');
+        if (userId && teamName) {
+            const fetchTeam = async () => {
+                if (!teamName || !userId) {
+                    setError('Invalid parameters.');
+                    setLoading(false);
+                    return;
                 }
-
-                const data: TeamNameGetResponse = await response.json();
-                if (data.teamDetails && Object.keys(data.teamDetails).length > 0) {
-                    setTeamData(data.teamDetails);
-                    setMatchData(data.matchDetails);
-                    setError('');
-                } else {
-                    setTeamData(null);
-                    setError('No such team.');
+    
+                try {
+                    const response = await fetch(`/api/teams/details?userId=${userId}&teamName=${encodeURIComponent(teamName)}`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch team');
+                    }
+    
+                    const data = await response.json() as TeamNameGetResponse;
+                    if (data.teamDetails && Object.keys(data.teamDetails).length > 0) {
+                        setTeamData(data.teamDetails);
+                        setMatchData(data.matchDetails);
+                        setError('');
+                    } else {
+                        setTeamData(null);
+                        setError('No such team.');
+                    }
+                    setLoading(false);
+                } catch (error) {
+                    console.error('Error fetching team data:', error);
+                    setError('Failed to load team data.');
+                    setLoading(false);
                 }
-                setLoading(false);
-            } catch (err) {
-                console.error('Error fetching team data:', err);
-                setError('Failed to load team data.');
-                setLoading(false);
-            }
-        };
-
-        fetchTeam();
+            };
+            const fetchData = async () => {
+                await fetchTeam();
+            };
+            fetchData().catch(error => console.error('Error in fetching data:', error));
+        }
     }, [teamName, userId]);
 
     if (loading) return <div>Loading...</div>;
