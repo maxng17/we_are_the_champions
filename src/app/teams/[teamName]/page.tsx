@@ -30,7 +30,7 @@ export default function TeamDetailPage() {
                 }
     
                 try {
-                    const response = await fetch(`/api/teams/details?userId=${userId}&teamName=${encodeURIComponent(teamName)}`);
+                    const response = await fetch(`/api/teams/details?userId=${userId}&teamName=${teamName}`);
                     
                     if (!response.ok) {
                         throw new Error('Failed to fetch team');
