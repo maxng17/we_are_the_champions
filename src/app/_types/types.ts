@@ -23,6 +23,15 @@ export interface LeaderBoardsData {
     teamName: string;
 }
 
+export interface TeamDetailsData {
+    regDate: string;
+    groupNumber: string;
+    wins: string;
+    losts: string;
+    draws: string;
+    totalGoals: string;
+}
+
 export interface ErrorResponse {
     message: string
 }

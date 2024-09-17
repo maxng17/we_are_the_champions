@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { Team } from "../_types/types"
 
 interface TeamTableProps {
@@ -20,7 +21,11 @@ export default function TeamTable( {teams}  : TeamTableProps) {
                     {teams.length ? (
                         teams.map((team, idx) => (
                             <tr key={idx}>
-                                <td className="px-4 py-2 border border-gray-300 text-center">{team.teamName}</td>
+                                <td className="px-4 py-2 border border-gray-300 text-center">
+                                    <Link href={`/${team.teamName}`} className="text-blue-500 hover:underline">
+                                        {team.teamName}
+                                    </Link>
+                                </td>
                                 <td className="px-4 py-2 border border-gray-300 text-center">{team.groupNumber}</td>
                                 <td className="px-4 py-2 border border-gray-300 text-center">{team.registrationDate}</td>
                             </tr>

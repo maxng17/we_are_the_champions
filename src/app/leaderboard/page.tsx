@@ -25,7 +25,7 @@ export default function LeaderboardPage() {
                 const response = await fetch(`/api/leaderboards?userId=${userId}`);
                 if (!response.ok) {
                     console.log(response)
-                    throw new Error('Network response not ok');
+                    throw new Error('Failed to fetch leaderboard data');
                 }
                 const data = await response.json() as LeaderboardsGetResponse;
                 setGroup1Data(data.group1);
