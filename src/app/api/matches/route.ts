@@ -70,11 +70,11 @@ export async function POST(request: Request) {
 
             const curT1loses = parseInt(team1Data[0]?.losts?? '0')
             updatedTeam1.losts = (curT1loses + 1).toString()
-        } else {
-            const curT2draws = parseInt(team2Data[0]?.wins?? '0')
+        } else if (team1goalsNum === team2goalsNum) {
+            const curT2draws = parseInt(team2Data[0]?.draws?? '0')
             updatedTeam2.draws = (curT2draws + 1).toString()
 
-            const curT1draws = parseInt(team1Data[0]?.losts?? '0')
+            const curT1draws = parseInt(team1Data[0]?.draws?? '0')
             updatedTeam1.draws = (curT1draws + 1).toString()
         }
 
