@@ -7,41 +7,51 @@ import { MatchInput, TeamDetailsData } from "../_types/types"
 import MatchesTable from "../_components/matchesTable"
 
 interface TeamNameGetResponse {
-    teamDetails : TeamDetailsData
-    matchDetails: MatchInput[]
+    teamDetails: TeamDetailsData | null;
+    matchDetails: MatchInput[];
 }
 
 export default function TeamDetailPage() {
     const [teamData, setTeamData] = useState<TeamDetailsData | null>(null);
     const [matchData, setMatchData] = useState<MatchInput[]>([]);
-    const [error, setError] = useState('')
-    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(true);
 
-    const {userId} = useAuth()
-    const {teamName} = useParams()
+    const { userId } = useAuth();
+    const { teamName } = useParams() as { teamName?: string };
 
     useEffect(() => {
         const fetchTeam = async () => {
+            if (!teamName || !userId) {
+                setError('Invalid parameters.');
+                setLoading(false);
+                return;
+            }
+
             try {
-                const response = await fetch(`/api/teams/details?userId=${userId}&teamName=${teamName}`);
+                const response = await fetch(`/api/teams/details?userId=${userId}&teamName=${encodeURIComponent(teamName)}`);
                 
                 if (!response.ok) {
                     throw new Error('Failed to fetch team');
                 }
-                const data = await response.json() as TeamNameGetResponse;
-                setError('')
-                setTeamData(data.teamDetails);
-                setMatchData(data.matchDetails);
-                console.log(data.matchDetails)
+
+                const data: TeamNameGetResponse = await response.json();
+                if (data.teamDetails && Object.keys(data.teamDetails).length > 0) {
+                    setTeamData(data.teamDetails);
+                    setMatchData(data.matchDetails);
+                    setError('');
+                } else {
+                    setTeamData(null);
+                    setError('No such team.');
+                }
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching team data:', err);
                 setError('Failed to load team data.');
                 setLoading(false);
-            } 
+            }
         };
 
-        
         fetchTeam();
     }, [teamName, userId]);
 
@@ -49,22 +59,22 @@ export default function TeamDetailPage() {
     if (error) return <div>Error: {error}</div>;
 
     if (!teamData) return <div>No such team.</div>;
-    console.log(teamData)
+
     return (
         <div className="min-h-screen p-4">
-        <div className="bg-white p-6 rounded-lg shadow-md mb-4">
-            <h1 className="text-2xl font-bold mb-2">Team Details:</h1>
-            <div className="mb-4">
-                <p><strong>Registration Date:</strong> {teamData.regDate}</p>
-                <p><strong>Group Number:</strong> {teamData.groupNumber}</p>
-                <p><strong>Wins:</strong> {teamData.wins}</p>
-                <p><strong>Losses:</strong> {teamData.losts}</p>
-                <p><strong>Draws:</strong> {teamData.draws}</p>
-                <p><strong>Total Goals:</strong> {teamData.totalGoals}</p>
-                <p><strong>Matches Played:</strong> {matchData.length}</p>
+            <div className="bg-white p-6 rounded-lg shadow-md mb-4">
+                <h1 className="text-2xl font-bold mb-2">Team Details:</h1>
+                <div className="mb-4">
+                    <p><strong>Registration Date:</strong> {teamData.regDate}</p>
+                    <p><strong>Group Number:</strong> {teamData.groupNumber}</p>
+                    <p><strong>Wins:</strong> {teamData.wins}</p>
+                    <p><strong>Losses:</strong> {teamData.losts}</p>
+                    <p><strong>Draws:</strong> {teamData.draws}</p>
+                    <p><strong>Total Goals:</strong> {teamData.totalGoals}</p>
+                    <p><strong>Matches Played:</strong> {matchData.length}</p>
+                </div>
+                <MatchesTable matches={matchData} />
             </div>
-            <MatchesTable matches={matchData} />
         </div>
-    </div>
-    )
+    );
 }
