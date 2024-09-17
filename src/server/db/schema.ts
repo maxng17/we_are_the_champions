@@ -27,7 +27,6 @@ export const teams = createTable(
     name: varchar("name", { length: 256 }).notNull(),
     group: varchar('group', {length: 1}).notNull(),
     totalScore: varchar('total_score', {length: 4}),
-    alternateScore: varchar('alternate_score', {length: 4}),
     regDate: varchar("reg_date", {length: 16}),
     wins: varchar('wins', {length: 4}),
     losts: varchar('losts', {length: 4}),

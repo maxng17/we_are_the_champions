@@ -20,7 +20,6 @@ export async function POST(request: Request) {
             name: teamName,
             group: groupNumber,
             totalScore: '0',
-            alternateScore: '0',
             wins: '0',
             losts: '0',
             draws: '0',
