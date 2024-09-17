@@ -4,10 +4,19 @@ import { useEffect, useState } from "react";
 import TeamTable from "../_components/teamTable";
 import MatchesTable from "../_components/matchesTable";
 import { useAuth } from "@clerk/nextjs";
+import {Team, MatchInput, ErrorResponse}  from "../_types/types";
+
+interface TeamsGetResponse {
+    teams: Team[];
+}
+
+interface MatchesGetResponse {
+    matches: MatchInput[];
+}
 
 export default function StartPage() {
-    const [teams, setTeams] = useState([]);
-    const [matches, setMatches] = useState([]);
+    const [teams, setTeams] = useState<Team[]>([]);
+    const [matches, setMatches] = useState<MatchInput[]>([]);
 
     const [showTeamsModal, setShowTeamsModal] = useState(false);
     const [showMatchesModal, setShowMatchesModal] = useState(false);
@@ -25,15 +34,34 @@ export default function StartPage() {
 
     useEffect(() => {
         if (userId) {
-            fetch(`/api/teams?userId=${userId}`)
-                .then(response => response.json())
-                .then(data => setTeams(data.teams))
-                .catch(error => console.error('Error fetching teams:', error));
-
-            fetch(`/api/matches?userId=${userId}`)
-                .then(response => response.json())
-                .then(data => setMatches(data.matches))
-                .catch(error => console.error('Error fetching matches:', error))
+            const fetchTeams = async () => {
+                try {
+                    const response = await fetch(`/api/teams?userId=${userId}`);
+                    if (!response.ok) {
+                        throw new Error('Network response not ok');
+                    }
+                    const data = await response.json() as TeamsGetResponse;
+                    setTeams(data.teams);
+                } catch (error) {
+                    console.error('Error fetching teams:', error);
+                }
+            };
+    
+            const fetchMatches = async () => {
+                try {
+                    const response = await fetch(`/api/matches?userId=${userId}`);
+                    if (!response.ok) {
+                        throw new Error('Network response not ok');
+                    }
+                    const data = await response.json() as MatchesGetResponse;
+                    setMatches(data.matches);
+                } catch (error) {
+                    console.error('Error fetching matches:', error);
+                }
+            };
+    
+            fetchTeams();
+            fetchMatches();
         }
     }, [userId]);
 
@@ -85,12 +113,12 @@ export default function StartPage() {
 
             if (response.ok) {
                 const updatedResponse = await fetch(`/api/teams?userId=${userIdInput}`);
-                const updatedData = await updatedResponse.json();
+                const updatedData = await updatedResponse.json() as TeamsGetResponse;
                 setTeams(updatedData.teams);
                 setTeamsInput('')
                 setShowTeamsModal(false)
             } else {
-                const error = await response.json();
+                const error = await response.json() as ErrorResponse;
                 setTeamError(`Error: ${error.message}`);
             }
         } catch (error) {
@@ -145,12 +173,12 @@ export default function StartPage() {
             
             if (response.ok) {
                 const updatedResponse = await fetch(`/api/matches?userId=${userId}`);
-                const updatedData = await updatedResponse.json();
+                const updatedData = await updatedResponse.json() as MatchesGetResponse;
                 setMatches(updatedData.matches);
                 setMatchesInput('');
                 setShowMatchesModal(false);
             } else {
-                const error = await response.json();
+                const error = await response.json() as ErrorResponse;
                 setMatchError(`Error: ${error.message}`);
             }
 

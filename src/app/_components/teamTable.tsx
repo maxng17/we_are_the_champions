@@ -1,14 +1,10 @@
-interface TeamInputs {
-    teamName: string,
-    registrationDate: string,
-    groupNumber: string,
+import { Team } from "../_types/types"
+
+interface TeamTableProps {
+    teams: Team[]
 }
 
-interface ListOfTeamInputs {
-    teams: TeamInputs[]
-}
-
-export default function TeamTable({ teams } : ListOfTeamInputs) {
+export default function TeamTable( {teams}  : TeamTableProps) {
     return (
         <div className="w-full">
             <h2 className="text-xl font-bold mb-2 text-center">Teams</h2>
@@ -25,8 +21,8 @@ export default function TeamTable({ teams } : ListOfTeamInputs) {
                         teams.map((team, idx) => (
                             <tr key={idx}>
                                 <td className="px-4 py-2 border border-gray-300 text-center">{team.teamName}</td>
-                                <td className="px-4 py-2 border border-gray-300 text-center">{team.registrationDate}</td>
                                 <td className="px-4 py-2 border border-gray-300 text-center">{team.groupNumber}</td>
+                                <td className="px-4 py-2 border border-gray-300 text-center">{team.registrationDate}</td>
                             </tr>
                         ))
                     ) : (

@@ -114,10 +114,10 @@ export async function GET(request: Request) {
 
     try {
         const matchesRecords = await db.select({
-            team1name: matches.team1name,
-            team2name: matches.team2name,
-            team1goals: matches.team1goals,
-            team2goals: matches.team2goals,
+            team1: matches.team1name,
+            team2: matches.team2name,
+            score1: matches.team1goals,
+            score2: matches.team2goals,
         }).from(matches).where(eq(matches.userId, userId))
 
         return NextResponse.json({ matches: matchesRecords }, {status: 200});

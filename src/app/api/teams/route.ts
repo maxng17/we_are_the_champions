@@ -3,9 +3,20 @@ import { NextResponse } from "next/server";
 import { teams } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
+interface UserTeamData {
+    name: string, 
+    registrationDate: string, 
+    groupNumber: string,
+}
+
+interface TeamPostRequest {
+    userIdInput: string,
+    userData: UserTeamData[]
+}
+
 export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
-    const {userIdInput, userData} = await request.json();
+    const {userIdInput, userData} = (await request.json() as TeamPostRequest);
     if (!userIdInput || !Array.isArray(userData)) {
         return NextResponse.json({ error: request.body}, { status: 400 });
     }
