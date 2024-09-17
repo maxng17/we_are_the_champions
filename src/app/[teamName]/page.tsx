@@ -35,15 +35,14 @@ export default function TeamDetailPage() {
                 console.log(data.matchDetails)
                 setLoading(false);
             } catch (err) {
-                console.error('Error fetching team data:', error);
+                console.error('Error fetching team data:', err);
                 setError('Failed to load team data.');
                 setLoading(false);
             } 
         };
 
-        if (teamName && userId) {
-            fetchTeam();
-        }
+        
+        fetchTeam();
     }, [teamName, userId]);
 
     if (loading) return <div>Loading...</div>;
