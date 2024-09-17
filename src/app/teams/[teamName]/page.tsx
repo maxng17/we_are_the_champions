@@ -18,7 +18,7 @@ export default function TeamDetailPage() {
     const [loading, setLoading] = useState(true);
 
     const { userId } = useAuth();
-    const { teamName } = useParams();
+    const { teamName } = useParams<{ teamName: string }>();
 
     useEffect(() => {
         if (userId && teamName) {

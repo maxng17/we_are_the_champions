@@ -20,26 +20,32 @@ export default function LeaderboardPage() {
     const {userId} = useAuth(); 
 
     useEffect(() => {
-        const fetchLeaderboardData = async () => {
-            try {
-                const response = await fetch(`/api/leaderboards?userId=${userId}`);
-                if (!response.ok) {
-                    console.log(response)
-                    throw new Error('Failed to fetch leaderboard data');
+        if (userId) {
+            const fetchLeaderboardData = async () => {
+                try {
+                    const response = await fetch(`/api/leaderboards?userId=${userId}`);
+                    if (!response.ok) {
+                        console.log(response)
+                        throw new Error('Failed to fetch leaderboard data');
+                    }
+                    const data = await response.json() as LeaderboardsGetResponse;
+                    setGroup1Data(data.group1);
+                    setGroup2Data(data.group2);
+                    setLoading(false);
+                } catch (error) {
+                    console.error('Error fetching leaderboard data:', error);
+                    setError('Failed to load leaderboard data.');
+                    setLoading(false);
                 }
-                const data = await response.json() as LeaderboardsGetResponse;
-                setGroup1Data(data.group1);
-                setGroup2Data(data.group2);
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching leaderboard data:', error);
-                setError('Failed to load leaderboard data.');
-                setLoading(false);
-            }
-        };
+            };
 
-        fetchLeaderboardData();
-    }, []);
+            const fetchData = async () => {
+                await fetchLeaderboardData();
+            };
+    
+            fetchData().catch(error => console.error('Error in fetching data:', error));
+        }
+    }, [userId]);
 
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
