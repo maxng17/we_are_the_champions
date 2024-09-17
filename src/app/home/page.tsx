@@ -7,29 +7,33 @@ import { useAuth } from "@clerk/nextjs";
 
 export default function StartPage() {
     const [teams, setTeams] = useState([]);
-    const [matches, setMatches] = useState([])
+    const [matches, setMatches] = useState([]);
 
-    const [showTeamsModal, setShowTeamsModal] = useState(false)
-    const [showMatchesModal, setShowMatchesModal] = useState(false)
+    const [showTeamsModal, setShowTeamsModal] = useState(false);
+    const [showMatchesModal, setShowMatchesModal] = useState(false);
 
-    const [teamsInput ,setTeamsInput] = useState('')
-    const [matchesInput, setMatchesInput] = useState('')
+    const [teamsInput ,setTeamsInput] = useState('');
+    const [matchesInput, setMatchesInput] = useState('');
 
     const [teamError, setTeamError] = useState('');
     const [matchError, setMatchError] = useState('');
 
-    const {userId} = useAuth()  
+    const {userId} = useAuth(); 
 
     const isAddTeamsDisabled =teams.length >= 12;
     const isAddMatchesDisabled = teams.length >= 20;
 
     useEffect(() => {
         if (userId) {
-            // Fetch team records when the component mounts
             fetch(`/api/teams?userId=${userId}`)
                 .then(response => response.json())
                 .then(data => setTeams(data.teams))
                 .catch(error => console.error('Error fetching teams:', error));
+
+            fetch(`/api/matches?userId=${userId}`)
+                .then(response => response.json())
+                .then(data => setMatches(data.matches))
+                .catch(error => console.error('Error fetching matches:', error))
         }
     }, [userId]);
 
@@ -47,8 +51,7 @@ export default function StartPage() {
         for (let x = 0; x < userInput.length; x++) {
             const line = userInput[x]?.trim()
             if (!line) {
-                setTeamError(`Error on line ${x + 1}: The line is empty.`);
-                return;
+                continue;
             }
 
             const fields = line.split(' ');
@@ -72,6 +75,7 @@ export default function StartPage() {
             return { name, registrationDate, groupNumber };
         });
         const userIdInput = userId
+
         try {
             const response = await fetch('/api/teams', {
                 method: 'POST',
@@ -80,7 +84,7 @@ export default function StartPage() {
             });
 
             if (response.ok) {
-                const updatedResponse = await fetch(`/api/teams?userId=${userId}`);
+                const updatedResponse = await fetch(`/api/teams?userId=${userIdInput}`);
                 const updatedData = await updatedResponse.json();
                 setTeams(updatedData.teams);
                 setTeamsInput('')
@@ -95,7 +99,7 @@ export default function StartPage() {
         }
    }
    
-   const handleMatchSubmit = () => {
+   const handleMatchSubmit = async () => {
         if (!matchesInput.trim()) {
             setMatchError('No data entered!')
             return 
@@ -106,12 +110,18 @@ export default function StartPage() {
             return
         }
 
-        for (let x = 0; x < matchesInput.length; x++) {
-            const line = matchesInput[x]?.trim()
+        for (let x = 0; x < userInput.length; x++) {
+            const line = userInput[x]?.trim()
             if (!line) {
                 continue
             }
-            const [team1, team2, score1, score2] = line.split(' ');
+            const fields = line.split(' ');
+            console.log(fields)
+            if (fields.length !== 4) {
+                setMatchError(`Error on line ${x + 1}: Each line must contain exactly 4 fields (Team 1, Team 2, Team 1 goals, Team 2 goals).`);
+                return
+            }
+            const [team1, team2, score1, score2] = fields;
 
             if (!team1 || !team2 || !score1 || !score2) {
                 setMatchError(`Error on line ${x + 1}: All fields are required (Team 1, Team 2, Team 1 goals, Team 2 goals)`);
@@ -124,11 +134,26 @@ export default function StartPage() {
             const [team1, team2, score1, score2] = line.trim().split(' ');
             return {team1, team2, score1, score2};
         });
+        const userIdInput = userId
 
         try {
-            userData.map(data => console.log(data))
-            setMatchesInput('')
-            setShowMatchesModal(false)
+            const response = await fetch('/api/matches', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json' },
+                body: JSON.stringify({userIdInput, userData})
+            });
+            
+            if (response.ok) {
+                const updatedResponse = await fetch(`/api/matches?userId=${userId}`);
+                const updatedData = await updatedResponse.json();
+                setMatches(updatedData.matches);
+                setMatchesInput('');
+                setShowMatchesModal(false);
+            } else {
+                const error = await response.json();
+                setMatchError(`Error: ${error.message}`);
+            }
+
         } catch (error) {
             setMatchError('Error occured while submitting the data. Please try again!')
             console.log(error)

@@ -1,8 +1,8 @@
 interface MatchesInput {
-    teamAname: string,
-    teamBname: string,
-    teamAgoals: string,
-    teamBgoals: string,
+    team1name: string,
+    team2name: string,
+    team1goals: string,
+    team2goals: string,
 }
 
 interface ListOfMatchesInput {
@@ -25,9 +25,9 @@ export default function MatchesTable({ matches } : ListOfMatchesInput) {
                     {matches.length ? (
                         matches.map((match, idx) => (
                             <tr key={idx}>
-                                <td className="px-4 py-2 border border-gray-300">{match.teamAname}</td>
-                                <td className="px-4 py-2 border border-gray-300">{match.teamAgoals + '  -  ' + match.teamBgoals}</td>
-                                <td className="px-4 py-2 border border-gray-300">{match.teamBname}</td>
+                                <td className="px-4 py-2 border border-gray-300 text-center">{match.team1name}</td>
+                                <td className="px-4 py-2 border border-gray-300 text-center">{match.team1goals + '  -  ' + match.team2goals}</td>
+                                <td className="px-4 py-2 border border-gray-300 text-center">{match.team2name}</td>
                             </tr>
                         ))
                     ) : (

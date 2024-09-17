@@ -2,7 +2,6 @@ import { db } from "~/server/db";
 import { NextResponse } from "next/server";
 import { teams } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
-import { group } from "console";
 
 export const dynamic = "force-dynamic";
 export async function POST(request: Request) {

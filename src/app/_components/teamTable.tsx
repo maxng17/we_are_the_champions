@@ -24,9 +24,9 @@ export default function TeamTable({ teams } : ListOfTeamInputs) {
                     {teams.length ? (
                         teams.map((team, idx) => (
                             <tr key={idx}>
-                                <td className="px-4 py-2 border border-gray-300">{team.teamName}</td>
-                                <td className="px-4 py-2 border border-gray-300">{team.registrationDate}</td>
-                                <td className="px-4 py-2 border border-gray-300">{team.groupNumber}</td>
+                                <td className="px-4 py-2 border border-gray-300 text-center">{team.teamName}</td>
+                                <td className="px-4 py-2 border border-gray-300 text-center">{team.registrationDate}</td>
+                                <td className="px-4 py-2 border border-gray-300 text-center">{team.groupNumber}</td>
                             </tr>
                         ))
                     ) : (
