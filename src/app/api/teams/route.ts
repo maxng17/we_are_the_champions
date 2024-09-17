@@ -28,7 +28,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: request.body}, { status: 400 });
     }
 
-    // Additional checks here
     for (const item of userData) {
         const teamName = item.name;
         const regDate = item.registrationDate;
@@ -37,10 +36,6 @@ export async function POST(request: Request) {
             userId: userIdInput,
             name: teamName,
             group: groupNumber,
-            totalScore: '0',
-            wins: '0',
-            losts: '0',
-            draws: '0',
             regDate: regDate,
         })
     }

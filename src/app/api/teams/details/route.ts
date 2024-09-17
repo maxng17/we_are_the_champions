@@ -17,17 +17,16 @@ export async function GET(request: Request) {
         const teamData = await db.select({
             regDate: teams.regDate,
             groupNumber: teams.group,
-            wins: teams.wins,
-            losts: teams.losts,
-            draws: teams.draws,
-            totalGoals: teams.totalScore,
         }).from(teams).where(and(eq(teams.userId, userId), eq(teams.name, teamName))).limit(1)
-
-        const teamRecord = {...teamData[0]}
 
         if (!teamData) {
             return NextResponse.json({message: 'Team not found'}, {status: 404})
         }
+
+        let wins = 0
+        let losts = 0
+        let draws = 0
+        let totalGoals = 0
 
         const matchData = await db.select({
             team1: matches.team1name,
@@ -35,6 +34,25 @@ export async function GET(request: Request) {
             score1: matches.team1goals,
             score2: matches.team2goals,
         }).from(matches).where(or(eq(matches.team1name, teamName),eq(matches.team2name, teamName)));
+
+        matchData.map(match => {
+            const score1num = parseInt(match.score1)
+            const score2num = parseInt(match.score2)
+
+            const isTeam1 = match.team1 === teamName;
+            const teamGoal = isTeam1 ? score1num : score2num
+            const oppoGoal = isTeam1 ? score2num : score1num
+
+            totalGoals += teamGoal
+            if (teamGoal > oppoGoal) {
+                wins += 1;
+            } else if (teamGoal < oppoGoal) {
+                losts += 1;
+            } else {
+                draws += 1;
+            }
+        })
+        const teamRecord = {...teamData[0], wins: wins, losts: losts, draws:draws, totalGoals:totalGoals}
 
         return NextResponse.json({teamDetails: teamRecord, matchDetails: matchData}, {status: 200})
     } catch (error) {

@@ -19,7 +19,7 @@ export interface LeaderBoardsData {
     lostsNum: number;
     drawsNum: number;
     totalScoreNum: number;
-    teamGroup: string;
+    groupNumber: string;
     teamName: string;
 }
 
