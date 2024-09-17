@@ -37,7 +37,7 @@ export default function StartPage() {
         }
     }, [userId]);
 
-   const handleTeamSubmit = async () => {
+    const handleTeamSubmit = async () => {
         if (teamsInput.trim().length === 0) {
             setTeamError('No data entered!')
             return
@@ -97,9 +97,9 @@ export default function StartPage() {
             setTeamError('Error occured while submitting the data. Please try again!')
             console.log(error)
         }
-   }
-   
-   const handleMatchSubmit = async () => {
+    }
+
+    const handleMatchSubmit = async () => {
         if (!matchesInput.trim()) {
             setMatchError('No data entered!')
             return 
@@ -158,7 +158,30 @@ export default function StartPage() {
             setMatchError('Error occured while submitting the data. Please try again!')
             console.log(error)
         }
-   }
+    }
+
+    const handleDeleteAllData = async() => {
+        if (!window.confirm("Are you sure you want to delete all team and match data? This action cannot be undone.")) {
+            return
+        } try {
+            const response = await fetch(`/api/deleteAll?userId=${userId}`, {
+                method: 'DELETE',
+            })
+
+            if (response.ok) {
+                setTeams([]);
+                setMatches([]);
+                alert('All team and match data has been deleted.');
+            } else {
+                const error = await response.json();
+                console.error('Error deleting data:', error.message);
+                alert('Failed to delete data.');
+            }
+        } catch (error) {
+            console.error('Error occurred during deletion:', error);
+            alert('An error occurred while deleting the data.');
+        }
+    }
 
     return (
         <div className='min-h-screen flex flex-col p-4'>
@@ -168,6 +191,9 @@ export default function StartPage() {
                 </button>
                 <button onClick={() => setShowMatchesModal(true)} className="bg-blue-500 text-white px-4 py-2 rounded-lg mr-4">
                     Add Match Results
+                </button>
+                <button onClick={handleDeleteAllData} className="bg-red-500 text-white px-4 py-2 rounded-lg">
+                    Delete All Data
                 </button>
             </div>
             <div className="flex p-4 flex-grow justify-center space-x-8">
