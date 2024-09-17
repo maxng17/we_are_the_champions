@@ -60,8 +60,12 @@ export default function StartPage() {
                 }
             };
     
-            fetchTeams();
-            fetchMatches();
+            const fetchData = async () => {
+                await fetchTeams();
+                await fetchMatches();
+            };
+    
+            fetchData().catch(error => console.error('Error in fetching data:', error));
         }
     }, [userId]);
 
@@ -122,8 +126,9 @@ export default function StartPage() {
                 setTeamError(`Error: ${error.message}`);
             }
         } catch (error) {
+            const e = error as Error;
             setTeamError('Error occured while submitting the data. Please try again!')
-            console.log(error)
+            console.log(e.message)
         }
     }
 
@@ -183,8 +188,9 @@ export default function StartPage() {
             }
 
         } catch (error) {
+            const e = error as Error;
             setMatchError('Error occured while submitting the data. Please try again!')
-            console.log(error)
+            console.log(e.message)
         }
     }
 
@@ -201,12 +207,13 @@ export default function StartPage() {
                 setMatches([]);
                 alert('All team and match data has been deleted.');
             } else {
-                const error = await response.json();
+                const error = await response.json() as ErrorResponse;
                 console.error('Error deleting data:', error.message);
                 alert('Failed to delete data.');
             }
         } catch (error) {
-            console.error('Error occurred during deletion:', error);
+            const e = error as Error;
+            console.error('Error occurred during deletion:', e.message);
             alert('An error occurred while deleting the data.');
         }
     }
