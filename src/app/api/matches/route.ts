@@ -1,11 +1,23 @@
 import { db } from "~/server/db";
 import { NextResponse } from "next/server";
-import { matches } from "~/server/db/schema";
-import { eq } from "drizzle-orm";
+import { matches, teams } from "~/server/db/schema";
+import { and, eq } from "drizzle-orm";
+
+interface UserMatchData {
+    team1: string,
+    team2: string,
+    score1: string,
+    score2: string,
+}
+
+interface MatchPostRequest {
+    userIdInput: string,
+    userData: UserMatchData[],
+}
 
 export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
-    const {userIdInput, userData} = await request.json();
+    const {userIdInput, userData} = (await request.json() as MatchPostRequest);
     if (!userIdInput || !Array.isArray(userData)) {
         return NextResponse.json({ error: request.body}, { status: 400 });
     }
@@ -24,6 +36,10 @@ export async function POST(request: Request) {
             team2goals:team2goals,
             team2name:team2name,
         })
+
+        const team1Data = await db.select({
+
+        }).from(teams).where(and(eq(teams.name, team1name), eq(teams.userId, userIdInput)))
     }
 
     return NextResponse.json({message: 'ok'}, {status: 200})
