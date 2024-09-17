@@ -26,11 +26,7 @@ export const teams = createTable(
     userId: varchar('userId', {length: 256}).notNull(),
     name: varchar("name", { length: 256 }).notNull(),
     group: varchar('group', {length: 1}).notNull(),
-    totalScore: varchar('total_score', {length: 4}),
     regDate: varchar("reg_date", {length: 16}),
-    wins: varchar('wins', {length: 4}),
-    losts: varchar('losts', {length: 4}),
-    draws: varchar('draws', {length: 4}),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
