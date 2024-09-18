@@ -47,7 +47,10 @@ export default function LogDetailPage() {
             const fetchData = async () => {
                 await fetchTeam();
             };
-            fetchData();
+            fetchData().catch(error => {
+                const e = error as Error;
+                setError(`Error in fetching data. Error: ${e.message}`)
+            });
         }
     }, [groupId, userId]);
 
@@ -73,8 +76,8 @@ export default function LogDetailPage() {
                 <div className="border p-4 bg-gray-100 w-[80%]" style={{ marginTop: '10vh' }}>
                     <h3 className="text-lg font-semibold">Operation: Edit</h3>
                     <p><strong>Data Type:</strong> {logDetails[0]?.dataType === 'TEAMS'? 'Teams': 'Match Results'}</p>
-                    <p><strong>From:</strong> {logDetails[0]?.prevData || 'No previous data'}</p>
-                    <p><strong>Changed To:</strong> {logDetails[0]?.inputData || 'No new data'}</p>
+                    <p><strong>From:</strong> {logDetails[0]?.prevData }</p>
+                    <p><strong>Changed To:</strong> {logDetails[0]?.inputData}</p>
                 </div>
             )}
 
