@@ -53,6 +53,7 @@ export default function TeamPage() {
     }, [userId]);
 
     const handleTeamSubmit = async () => {
+        // Check if input is empty
         if (teamsInput.trim().length === 0) {
             setTeamError('No data entered!')
             return
@@ -60,7 +61,8 @@ export default function TeamPage() {
         const userInput = teamsInput.split('\n').filter(line => line.trim() != '')
 
         const currentcount = teams.length + userInput.length;
-        console.log(currentcount)
+        
+        // Check only 12 teams in total
         if (currentcount > 12) {
             setTeamError(`There can only be 12 teams in the competitions. `)
             return
@@ -80,6 +82,7 @@ export default function TeamPage() {
 
             const fields = line.trim().split(/\s+/);
 
+            // Check correct number of fields
             if (fields.length !== 3) {
                 setTeamError(`Error on line ${x + 1}: Each line must contain exactly three fields (Name, Registration Date, Group Number).`);
                 return;
@@ -99,6 +102,11 @@ export default function TeamPage() {
             }
             checkTeamNames.add(nName);
 
+            if (nGroupNumber !== '1' && nGroupNumber !== '2') {
+                setTeamError(`Error on line ${x + 1}: Group number must be either 1 or 2.`)
+                return 
+            }
+
             // Check if the reg date is legit
             const dateArr = nRegistrationDate.split('/');
             if (dateArr[0]?.length !== 2 || dateArr[1]?.length !== 2) {
@@ -108,6 +116,7 @@ export default function TeamPage() {
             const day = parseInt(dateArr[0] ?? '0');
             const month = parseInt(dateArr[1] ?? '0');
 
+            // Check for valid date
             if (isNaN(day) || isNaN(month) || day < 1 || day > 31 || month < 1 || month > 12) {
                 setTeamError(`Error on line ${x + 1}: Invalid registration date. Please check the day and month.`);
                 return;
@@ -116,11 +125,13 @@ export default function TeamPage() {
             const regDate = new Date(2024, month - 1, day);
             const isValidDate = regDate.getDate() === day && regDate.getMonth() === month - 1;
 
+            // Check for valid date
             if (!isValidDate) {
                 setTeamError(`Error on line ${x + 1}: Invalid registration date. Please check the day and month.`);
                 return;
             }
 
+            //Check that the number of teams per group do not exceed 6
             if (nGroupNumber === '1' && group1count >= 6) {
                 setTeamError(`Error on line ${x + 1}: Group ${nGroupNumber} already has the maximum number of 6 teams.`);
                 return;
@@ -202,23 +213,28 @@ export default function TeamPage() {
         if (teamToBeEditted === null) {
             return
         }
+        
+        // Check if data is entered
         if (editInput.trim().length === 0) {
             setTeamError('No data entered!')
             return
         }
 
+        // Ensure only 1 line of data is entered
         const numOfInputLines = editInput.trim().split('\n').length
         if (numOfInputLines > 1) {
             setTeamError('Only 1 line of input is accepted for editing.')
             return
         }
 
+        // Check for only 3 fields
         const [name, registrationDate, groupNumber] = editInput.trim().split(/\s+/);
         if (!name || !registrationDate || !groupNumber) {
             setTeamError('Must contain exactly three fields (Name, Registration Date, Group Number)');
             return;
         } 
 
+        // Check for name uniqueness
         if (name !== teamToBeEditted.teamName) {
             const isNameTaken = teams.some(team => team.teamName === name);
             if (isNameTaken) {
@@ -227,11 +243,13 @@ export default function TeamPage() {
             }
         }
 
+        // Check that group number is either 1 or 2
         if (groupNumber !== '1' && groupNumber !== '2') {
             setTeamError('Group number must be either 1 or 2.');
             return;
         }
 
+        // DateReg check if legit
         const dateArr = registrationDate.split('/');
         if (dateArr[0]?.length !== 2 || dateArr[1]?.length !== 2) {
             setTeamError('Invalid registration date. Ensure that it is in the format: DD/MM')
