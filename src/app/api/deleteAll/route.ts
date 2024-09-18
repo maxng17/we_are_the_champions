@@ -1,6 +1,6 @@
 import { db } from "~/server/db";
 import { NextResponse } from "next/server";
-import { matches, teams } from "~/server/db/schema";
+import { matches, teams, logs } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
@@ -14,11 +14,27 @@ export async function DELETE(request: Request) {
     }
 
     try {
+        const existingMatches = await db.select().from(matches).where(eq(matches.userId, userId));
+        const existingTeams = await db.select().from(teams).where(eq(teams.userId, userId));
+
+        if (existingMatches.length === 0 && existingTeams.length === 0) {
+            return NextResponse.json({ message: "No teams or matches to delete" }, { status: 200 });
+        }
+        
         // Delete all matches for the user
         await db.delete(matches).where(eq(matches.userId, userId));
 
         // Delete all teams for the user
         await db.delete(teams).where(eq(teams.userId, userId));
+
+        const groupId = crypto.randomUUID()
+
+        await db.insert(logs).values({
+            userId: userId,
+            operation: 'DELETE',
+            groupId: groupId,
+            dataType: 'NONE',
+        })
 
         return NextResponse.json({ message: "ok" }, { status: 200 });
     } catch (error) {

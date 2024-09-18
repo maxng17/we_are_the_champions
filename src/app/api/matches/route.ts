@@ -1,6 +1,6 @@
 import { db } from "~/server/db";
 import { NextResponse } from "next/server";
-import { matches, teams } from "~/server/db/schema";
+import { logs, matches, teams } from "~/server/db/schema";
 import { and, eq, or} from "drizzle-orm";
 import { type MatchInput } from "~/app/_types/types";
 
@@ -73,11 +73,15 @@ export async function POST(request: Request) {
         lineNum += 1;
     }
 
+    const groupId = crypto.randomUUID();
+
     for (const item of userData) {
         const team1name = item.team1;
         const team2name = item.team2;
         const team1goals = item.score1;
         const team2goals = item.score2;
+
+        const reConstructInput = team1name + ' ' + team2name + ' ' + team1goals + ' ' + team2goals
          
         await db.insert(matches).values({
             userId: userIdInput,
@@ -85,6 +89,14 @@ export async function POST(request: Request) {
             team1name:team1name,
             team2goals:team2goals,
             team2name:team2name,
+        })
+
+        await db.insert(logs).values({
+            userId : userIdInput,
+            operation : "ADD",
+            dataType : "MATCHES",
+            inputData :reConstructInput,
+            groupId : groupId,
         })
     }
 
@@ -133,7 +145,11 @@ export async function PUT(request: Request) {
             return NextResponse.json({ message: 'Match result not found. Please refresh the page.' }, { status: 404 })
         }
 
-        const { team1name: ogTeam1Name, team2name: ogTeam2Name, id: ogId } = originalMatch[0];
+        const { team1name: ogTeam1Name, team2name: ogTeam2Name, id: ogId, team1goals: ogTeam1goals, team2goals: ogTeam2goals } = originalMatch[0];
+
+        const groupId = crypto.randomUUID();
+        const newInputString = nTeam1name + ' ' + nTeam2name + ' ' + nTeam1goals + ' ' + nTeam2goals
+        const ogInputString = ogTeam1Name + ' ' + ogTeam2Name + ' ' + ogTeam1goals + ' ' + ogTeam2goals
 
         // Score only update
         if ((ogTeam1Name === nTeam1name && ogTeam2Name === nTeam2name) || (ogTeam1Name === nTeam2name && ogTeam2Name === nTeam1name))  {
@@ -141,6 +157,15 @@ export async function PUT(request: Request) {
                 team1goals: nTeam1goals,
                 team2goals: nTeam2goals,
             }).where(eq(matches.id, ogId))
+
+            await db.insert(logs).values({
+                userId : userId,
+                operation : "EDIT",
+                dataType : 'MATCHES',
+                inputData :newInputString,
+                prevData :ogInputString,
+                groupId : groupId,
+            })
 
             return NextResponse.json({ status: 204 });
         } else {
@@ -184,6 +209,15 @@ export async function PUT(request: Request) {
                 team2goals: nTeam2goals,
             })
             .where(eq(matches.id, ogId));
+
+            await db.insert(logs).values({
+                userId : userId,
+                operation : "EDIT",
+                dataType : 'MATCHES',
+                inputData :newInputString,
+                prevData :ogInputString,
+                groupId : groupId,
+            })
 
             return NextResponse.json({ status: 204 });
         }

@@ -1,6 +1,6 @@
 import { db } from "~/server/db";
 import { NextResponse } from "next/server";
-import { matches, teams } from "~/server/db/schema";
+import { matches, teams, logs } from "~/server/db/schema";
 import { and, eq } from "drizzle-orm";
 import  { type Team } from "~/app/_types/types";
 
@@ -28,16 +28,30 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: request.body}, { status: 400 });
     }
 
+    const groupId = crypto.randomUUID();
+
     for (const item of userData) {
         const teamName = item.name;
         const regDate = item.registrationDate;
         const groupNumber = item.groupNumber;
+
+        const reConstructInput = teamName + ' ' + regDate + ' ' + groupNumber
+
         await db.insert(teams).values({
             userId: userIdInput,
             name: teamName,
             group: groupNumber,
             regDate: regDate,
         })
+
+        await db.insert(logs).values({
+            userId : userIdInput,
+            operation : 'ADD',
+            dataType : 'TEAMS',
+            inputData : reConstructInput,
+            groupId: groupId
+        });
+    
     }
 
     return NextResponse.json({ message: 'ok' }, { status: 200 }); 
@@ -79,7 +93,7 @@ export async function PUT(request: Request) {
             return NextResponse.json({message: 'Team result not found. Please refresh your page.'}, {status: 404})
         }
 
-        const {name: ogName, group: ogGroup, id: ogId} = originalTeam[0]
+        const {name: ogName, group: ogGroup, id: ogId, regDate: ogDate} = originalTeam[0]
 
         // Repeated check for unique name. Done in frontend already but just in case
         if (name != ogName) {
@@ -121,6 +135,19 @@ export async function PUT(request: Request) {
                 team2name : name
             }).where(and(eq(matches.userId, userId), eq(matches.team2name, ogName)))
         }
+
+        const groupId = crypto.randomUUID();
+        const ogInputString = ogName + " " + ogDate + " " + ogGroup;
+        const newInputString = name + " " + registrationDate + " " + groupNumber;
+
+        await db.insert(logs).values({
+            userId : userId,
+            operation : "EDIT",
+            dataType : 'TEAMS',
+            inputData :newInputString,
+            prevData :ogInputString,
+            groupId : groupId,
+        })
 
         return NextResponse.json({ status: 204 }); 
     } catch (error) {

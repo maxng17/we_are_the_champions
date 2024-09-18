@@ -57,7 +57,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json({teamDetails: teamRecord, matchDetails: matchData}, {status: 200})
     } catch (error) {
-        console.error('Error fetching team data:', error);
-        return NextResponse.json({ message: 'Failed to fetch team data' }, { status: 500 });
+        const e = error as Error
+        return NextResponse.json({ message: e.message }, { status: 500 });
     }
 }
