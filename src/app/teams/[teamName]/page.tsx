@@ -3,7 +3,7 @@
 import { useAuth } from "@clerk/nextjs"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
-import { MatchInput, TeamDetailsData } from "../../_types/types"
+import { type MatchInput, type TeamDetailsData } from "../../_types/types"
 import MatchesTable from "../../_components/matchesTable"
 
 interface TeamNameGetResponse {
@@ -69,6 +69,7 @@ export default function TeamDetailPage() {
             <div className="bg-white p-6 rounded-lg shadow-md mb-4">
                 <h1 className="text-2xl font-bold mb-2">Team Details:</h1>
                 <div className="mb-4">
+                    <p><strong>Team Name:</strong> {teamName}</p>
                     <p><strong>Registration Date:</strong> {teamData.regDate}</p>
                     <p><strong>Group Number:</strong> {teamData.groupNumber}</p>
                     <p><strong>Wins:</strong> {teamData.wins}</p>

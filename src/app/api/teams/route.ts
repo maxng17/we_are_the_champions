@@ -1,8 +1,8 @@
 import { db } from "~/server/db";
 import { NextResponse } from "next/server";
-import { teams } from "~/server/db/schema";
+import { matches, teams } from "~/server/db/schema";
 import { and, eq } from "drizzle-orm";
-import { Team } from "~/app/_types/types";
+import  { type Team } from "~/app/_types/types";
 
 interface UserTeamData {
     name: string, 
@@ -16,7 +16,7 @@ interface TeamPostRequest {
 }
 
 interface TeamPutRequest {
-    editInput: string,
+    trimmedInput: string,
     teamToBeEditted: Team,
     userId: string,
 }
@@ -66,15 +66,64 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-    const {editInput, teamToBeEditted, userId} = await request.json() as TeamPutRequest;
-    const [name, registrationDate, groupNumber] = editInput.split(' ');
-
     try {
+        const {trimmedInput, teamToBeEditted, userId} = await request.json() as TeamPutRequest;
+        const [name, registrationDate, groupNumber] = trimmedInput.split(/\s+/);
+
+        if (name === undefined || registrationDate === undefined || groupNumber === undefined) {
+            return NextResponse.json({message: 'Missing fields detected'}, {status: 400})
+        }
+        
+        const originalTeam = await db.select().from(teams).where(and(eq(teams.userId, userId), eq(teams.name, teamToBeEditted.teamName)))
+        if (!originalTeam[0]) {
+            return NextResponse.json({message: 'Team result not found. Please refresh your page.'}, {status: 404})
+        }
+
+        const {name: ogName, group: ogGroup, id: ogId} = originalTeam[0]
+
+        // repeated check from frontend just in case
+        if (name != ogName) {
+            const checkUniqueName = await db
+                .select()
+                .from(teams)
+                .where(and(eq(teams.userId, userId), eq(teams.name, name)))
+
+            if (checkUniqueName.length > 0) {
+                return NextResponse.json({message: `Team name is already being taken`}, {status: 400})
+            }
+        }
+
+        // check when group number change if the other group has space
+        if (groupNumber !== ogGroup) {
+            const checkGroupCount = await db
+                .select()
+                .from(teams)
+                .where(and(eq(teams.userId, userId), eq(teams.group, groupNumber)));
+
+            if (checkGroupCount.length >= 6) {
+                return NextResponse.json({ message: `Group ${groupNumber} already has 6 teams.` }, { status: 400 });
+            }
+        }
+
         await db.update(teams).set({
-            regDate: registrationDate
-        }).where(and(eq(teams.name, teamToBeEditted.teamName), eq(teams.userId, userId)))
-        return NextResponse.json({ status: 204 });
+            name: name,
+            regDate: registrationDate,
+            group: groupNumber,
+        }).where(eq(teams.id, ogId))
+
+        if (name !== ogName) {
+            await db.update(matches).set({
+                team1name : name
+            }).where(and(eq(matches.userId, userId), eq(matches.team1name, ogName)))
+
+            await db.update(matches).set({
+                team2name : name
+            }).where(and(eq(matches.userId, userId), eq(matches.team2name, ogName)))
+        }
+
+        return NextResponse.json({ status: 204 }); 
     } catch (error) {
+        console.error("Error updating team:", error);
         return NextResponse.json({ message: 'Failed to update team data' }, { status: 500 });
     }
 }

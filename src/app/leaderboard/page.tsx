@@ -47,19 +47,28 @@ export default function LeaderboardPage() {
         }
     }, [userId]);
 
-    if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
 
     return (
-        <div className='min-h-screen flex flex-col p-4'>
-            <div className="flex flex-col space-y-8 p-4">
-                <div className="flex justify-center">
-                    <LeaderBoardTable teamData={group1Data} groupName="1" />
+        <>
+            {loading ? (
+                <div className="flex justify-center items-center min-h-screen">
+                    <p>Loading...</p>
                 </div>
-                <div className="flex justify-center">
-                    <LeaderBoardTable teamData={group2Data} groupName="2" />
+            ) : (
+                <>
+                <div className='min-h-screen flex flex-col p-4'>
+                    <div className="flex flex-col space-y-8 p-4">
+                        <div className="flex justify-center">
+                            <LeaderBoardTable teamData={group1Data} groupName="1" />
+                        </div>
+                        <div className="flex justify-center">
+                            <LeaderBoardTable teamData={group2Data} groupName="2" />
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+                </>
+            )}
+        </>
     );
 }

@@ -58,7 +58,7 @@ export async function GET(request: Request) {
                 const totalPoints = (winsNum * 3) + (drawsNum * 1);
                 const alternatePoints = (winsNum * 5) + (drawsNum * 3) + (lostsNum * 1);
 
-                const dateArr = team.registrationDate?? '0'.split('/')
+                const dateArr = registrationDate?? '0'.split('/')
                 const day = parseInt(dateArr[0]?? '0')
                 const month = parseInt(dateArr[1]?? '0')
                 const regDate = new Date(2024, month-1, day);
@@ -89,6 +89,6 @@ export async function GET(request: Request) {
         return NextResponse.json({group1: group1, group2: group2}, {status:200})
     } catch (error) {
         console.error('Error fetching teams:', error);
-        return NextResponse.json({error: 'Failed to fetch data'}, {status: 500});
+        return NextResponse.json({message: 'Failed to fetch data'}, {status: 500});
     }
 }

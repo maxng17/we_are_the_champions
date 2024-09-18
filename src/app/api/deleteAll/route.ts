@@ -10,7 +10,7 @@ export async function DELETE(request: Request) {
     const userId = url.searchParams.get('userId');
     
     if (!userId) {
-        return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+        return NextResponse.json({ message: "User ID is required" }, { status: 400 });
     }
 
     try {
@@ -23,6 +23,6 @@ export async function DELETE(request: Request) {
         return NextResponse.json({ message: "ok" }, { status: 200 });
     } catch (error) {
         console.error('Error deleting teams and matches:', error);
-        return NextResponse.json({ error: "Failed to delete teams and matches" }, { status: 500 });
+        return NextResponse.json({ message: "Failed to delete teams and matches" }, { status: 500 });
     }
 }
