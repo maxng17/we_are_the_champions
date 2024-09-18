@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Team } from "../_types/types"
+import { type Team } from "../_types/types"
 
 interface TeamTableProps {
     teams: Team[]

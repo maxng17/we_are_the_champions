@@ -1,4 +1,4 @@
-import { MatchInput } from "../_types/types"
+import { type MatchInput } from "../_types/types"
 
 interface MatchTableProps {
     matches: MatchInput[]

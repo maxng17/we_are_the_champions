@@ -1,4 +1,4 @@
-import { LeaderBoardsData } from "../_types/types";
+import { type LeaderBoardsData } from "../_types/types";
 
 interface LeaderTableProps {
     teamData : LeaderBoardsData[],
