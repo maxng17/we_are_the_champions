@@ -32,6 +32,20 @@ export interface TeamDetailsData {
     totalGoals: string;
 }
 
+export interface DataLog {
+    operation: string;
+    dataType: string;
+    createdAt: Date;
+    groupId: string;
+}
+
+export interface LogDetails {
+    prevData: string | null;
+    inputData: string | null;
+    operation: string;
+    dataType: string;
+}
+
 export interface ErrorResponse {
     message: string
 }
