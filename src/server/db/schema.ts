@@ -3,10 +3,9 @@
 
 import { sql } from "drizzle-orm";
 import {
-  date,
-  index,
   pgTableCreator,
   serial,
+  text,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
@@ -45,6 +44,12 @@ export const matches = createTable(
     team2name: varchar('team2_name', { length: 256}).notNull(),
     team1goals: varchar('team1_goals', { length: 256 }).notNull(),
     team2goals: varchar('team2_goals', { length: 256}).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      () => new Date()
+    ),
   }
 )
 
@@ -54,5 +59,15 @@ export const logs = createTable(
     id: serial('id').primaryKey(),
     userId: varchar('userId', {length: 256}).notNull(),
     operation: varchar('operation', {length: 256}).notNull(),
+    groupId: varchar('group_id', {length:256}).notNull(),
+    dataType: varchar('data_type', {length: 256}).notNull(),
+    inputData: text('input_data'),
+    prevData: text('prevData'),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+      () => new Date()
+    ),
   }
 )
