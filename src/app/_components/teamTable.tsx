@@ -13,8 +13,8 @@ export default function TeamTable({ teams, onEdit }: TeamTableProps) {
                 <thead>
                     <tr>
                         <th className="w-1/4 px-4 py-2 border border-gray-300">Team Name</th>
-                        <th className="w-1/4 px-4 py-2 border border-gray-300">Group</th>
                         <th className="w-1/4 px-4 py-2 border border-gray-300">Registration Date</th>
+                        <th className="w-1/4 px-4 py-2 border border-gray-300">Group</th>
                         <th className="w-1/4 px-4 py-2 border border-gray-300">Actions</th>
                     </tr>
                 </thead>
@@ -27,8 +27,8 @@ export default function TeamTable({ teams, onEdit }: TeamTableProps) {
                                         {team.teamName}
                                     </Link>
                                 </td>
-                                <td className="px-4 py-2 border border-gray-300 text-center">{team.groupNumber}</td>
                                 <td className="px-4 py-2 border border-gray-300 text-center">{team.registrationDate}</td>
+                                <td className="px-4 py-2 border border-gray-300 text-center">{team.groupNumber}</td>
                                 <td className="px-4 py-2 border border-gray-300 text-center">
                                     <button 
                                         onClick={() => onEdit(team)} 
