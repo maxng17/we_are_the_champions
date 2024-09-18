@@ -14,6 +14,7 @@ export async function GET(request: Request) {
     }
 
     try {
+        // After fetching the data, count the points and alternate points.
         const teamData = await db.select({
             regDate: teams.regDate,
             groupNumber: teams.group,

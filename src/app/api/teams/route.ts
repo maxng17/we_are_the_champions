@@ -81,7 +81,7 @@ export async function PUT(request: Request) {
 
         const {name: ogName, group: ogGroup, id: ogId} = originalTeam[0]
 
-        // repeated check from frontend just in case
+        // Repeated check for unique name. Done in frontend already but just in case
         if (name != ogName) {
             const checkUniqueName = await db
                 .select()
@@ -111,6 +111,7 @@ export async function PUT(request: Request) {
             group: groupNumber,
         }).where(eq(teams.id, ogId))
 
+        // If there is name change, propagate changes to 
         if (name !== ogName) {
             await db.update(matches).set({
                 team1name : name

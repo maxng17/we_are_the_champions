@@ -25,6 +25,11 @@ export async function GET(request: Request) {
             team2goals: matches.team2goals
         }).from(matches).where(eq(matches.userId, userId))
 
+        // Idea is to do calculation when loading the page.
+        // 1. Convert all the data to number
+        // 2. Find total score and alternate score
+        // 3. Sort the records (condition given in question)
+        // 4. Filter to get 2 groups of sorted records
         const leaderboardData = teamRecords.map(team => {
             const { teamName, registrationDate, groupNumber } = team;
 
