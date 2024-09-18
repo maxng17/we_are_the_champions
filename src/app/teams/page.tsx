@@ -174,9 +174,7 @@ export default function TeamPage() {
                 setTeamError(`${error.message}`);
             }
         } catch (error) {
-            const e = error as Error;
             setTeamError('Error occured while submitting the data. Please try again!')
-            console.log(e.message)
         }
     }
 
@@ -296,9 +294,7 @@ export default function TeamPage() {
                 setTeamError(`Error: ${error.message}`);
             }
         } catch (error) {
-            const e = error as Error;
             setTeamError('Error occured while submitting the data. Please try again!')
-            console.log(e.message)
         }
     }
 

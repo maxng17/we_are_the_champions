@@ -144,9 +144,7 @@ export default function MatchesPage() {
             }
 
         } catch (error) {
-            const e = error as Error;
-            setMatchError('Error occured while submitting the data. Please try again!')
-            console.log(e.message)
+            setMatchError('Error occured while submitting the data. Please try again!');
         }
     }
 
@@ -248,9 +246,7 @@ export default function MatchesPage() {
                 setMatchError(`Error: ${error.message}`);
             }
         } catch (error) {
-            const e = error as Error;
             setMatchError('Error occured while submitting the data. Please try again!')
-            console.log(e.message)
         }
     }
 
@@ -281,7 +277,7 @@ export default function MatchesPage() {
                     {showMatchesModal && (
                         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm">
                             <div className="w-[700px] bg-white rounded flex flex-col p-6">
-                                <h2>Add Match Details</h2>
+                                <h2 className="text-2xl text-center mb-4">Add Match Details</h2>
                                 <textarea 
                                     value={matchesInput}
                                     onChange={(e) => setMatchesInput(e.target.value)}

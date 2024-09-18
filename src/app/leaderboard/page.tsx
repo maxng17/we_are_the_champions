@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import LeaderBoardTable from "../_components/leaderboardTable";
-import { LeaderBoardsData } from "../_types/types";
+import { type LeaderBoardsData } from "../_types/types";
 import { useAuth } from "@clerk/nextjs";
 
 interface LeaderboardsGetResponse {
@@ -25,7 +25,6 @@ export default function LeaderboardPage() {
                 try {
                     const response = await fetch(`/api/leaderboards?userId=${userId}`);
                     if (!response.ok) {
-                        console.log(response)
                         throw new Error('Failed to fetch leaderboard data');
                     }
                     const data = await response.json() as LeaderboardsGetResponse;
