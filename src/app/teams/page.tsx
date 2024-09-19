@@ -363,6 +363,13 @@ export default function TeamPage() {
                                 className="rounded-lg p-4 mt-2 text-lg border-2 border-black mb-4"
                                 disabled={isModalLoading}
                             />
+                            <div className="text-sm text-gray-500 mb-4">
+                                <p>For Add, you can add multiple Team's data, each in a different line.</p>
+                                <p>Add the fields of each Team and ensure that each line follows the format below.</p>
+                                <p>Format: <span className="font-bold">{"<Team Name> <Registration date in DD/MM> <Team's Group Number>"}</span></p>
+                                <p>Example: <span className="font-bold">firstTeam 17/05 2</span></p>
+                                <p>Ensure all fields are correct before submitting.</p>
+                            </div>
                             {teamError && <p className="text-red-500 mt-2">{teamError}</p>}
                             <div className="flex justify-between mt-4 px-4">
                                 <button 
@@ -388,11 +395,18 @@ export default function TeamPage() {
                             <textarea 
                                 value={editInput}
                                 onChange={(e) => setEditInput(e.target.value)}
-                                rows={12}
+                                rows={4}
                                 placeholder="Enter teams data here..."
                                 className="rounded-lg p-4 mt-2 text-lg border-2 border-black mb-4"
                                 disabled={isModalLoading}
                             />
+                            <div className="text-sm text-gray-500 mb-4">
+                                <p>For Edit, you can only change this team's data.</p>
+                                <p>Replace the fields that you want to edit.</p>
+                                <p>Format: <span className="font-bold">{"<Team Name> <Registration date in DD/MM> <Team's Group Number>"}</span></p>
+                                <p>Example: <span className="font-bold">firstTeam 17/05 2</span></p>
+                                <p>Ensure all fields are correct before submitting.</p>
+                            </div>
                             {teamError && <p className="text-red-500 mt-2">{teamError}</p>}
                             <div className="flex justify-between mt-4 px-4">
                                 <button 
