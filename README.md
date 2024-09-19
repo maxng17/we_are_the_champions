@@ -13,6 +13,18 @@ https://we-are-the-champions-sigma.vercel.app/
 5) Vercel is accepted since it is a cloud provider.
 6) Implement an authentication mechnism means I can use services like Clerk or Supabase since I just have to integrate to my application.
 
+
+### Steps to run locally
+My assumption is that since the application is deployed, a docker file to run the source code is not needed. However if there is a need to run locally still, please email me and I will share the required API keys.
+
+```
+git clone git@github.com:maxng17/we_are_the_champions.git
+
+# Manually create .env file with required API keys.
+
+npm run dev
+```
+
 ## Architecture decisions
 
 ### Monolithic
