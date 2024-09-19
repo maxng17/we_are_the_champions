@@ -29,7 +29,7 @@ export default function LogPage() {
                     const data = await response.json() as DataLogGetResponse;
                     setDataLogs(data.sortedResults)
                 } catch (error) {
-                    setError('Failed to load leaderboard data.');
+                    setError('Failed to load logs data. Please refresh the page.');
                 } finally {
                     setLoading(false)
                 }
@@ -38,8 +38,11 @@ export default function LogPage() {
             const fetchData = async () => {
                 await fetchLogsdData();
             };
+
+            fetchData().catch(() => {
+                setError("Something went wrong. Please refresh the page."); 
+            })
     
-            fetchData().catch(error => console.error('Error in fetching data:', error));
         }
     }, [userId]);
 
@@ -61,9 +64,9 @@ export default function LogPage() {
 
     return (
         <div className="flex flex-col items-center h-screen w-full">
-        <div className="w-[80%] p-4" style={{ marginTop: '20vh' }}>
-            <LogsTable logDatas={dataLogs} />
-        </div>
+            <div className="w-[80%] p-4" style={{ marginTop: '5vh' }}>
+                <LogsTable logDatas={dataLogs} />
+            </div>
         </div>
     );
 }

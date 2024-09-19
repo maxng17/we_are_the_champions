@@ -45,17 +45,19 @@ export default function TeamDetailPage() {
                         setTeamData(null);
                         setError('No such team.');
                     }
-                    setLoading(false);
                 } catch (error) {
-                    console.error('Error fetching team data:', error);
-                    setError('Failed to load team data.');
-                    setLoading(false);
+                    // Error here is unexpected, refresh page to retry
+                    setError('Failed to load leaderboard data. Please refresh the page. If problem persist please delete all data and try again.');
+                } finally {
+                    setLoading(false)
                 }
             };
             const fetchData = async () => {
                 await fetchTeam();
             };
-            fetchData().catch(error => console.error('Error in fetching data:', error));
+            fetchData().catch(() => {
+                setError("Something went wrong. Please refresh the page. If problem persist please delete all data and try again."); 
+            })
         }
     }, [teamName, userId]);
 

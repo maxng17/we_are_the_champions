@@ -32,24 +32,22 @@ export default function LogDetailPage() {
                     const response = await fetch(`/api/logs/details?userId=${userId}&groupId=${groupId}`);
                     
                     if (!response.ok) {
-                        throw new Error('Failed to fetch team');
+                        setError('No such logs exist.');
+                    } else {
+                        const data = await response.json() as LogDetailGetResponse;
+                        setLogDetails(data.logsDetails)
                     }
-    
-                    const data = await response.json() as LogDetailGetResponse;
-                    setLogDetails(data.logsDetails)
-                    setLoading(false);
                 } catch (error) {
-                    const e = error as Error
-                    setError(`Failed to load log data. Error: ${e.message}`);
-                    setLoading(false);
+                    setError('Failed to load logs data. Please refresh the page.');
+                } finally {
+                    setLoading(false)
                 }
             };
             const fetchData = async () => {
                 await fetchTeam();
             };
             fetchData().catch(error => {
-                const e = error as Error;
-                setError(`Error in fetching data. Error: ${e.message}`)
+                setError("Something went wrong. Please refresh the page. If problem persist please delete all data and try again."); 
             });
         }
     }, [groupId, userId]);
@@ -69,6 +67,8 @@ export default function LogDetailPage() {
             </div>
         );
     }
+
+    const num = logDetails.length
 
     return (
         <div className="p-4 flex flex-col items-center h-screen w-full ">
@@ -90,7 +90,7 @@ export default function LogDetailPage() {
                         readOnly
                         value={logDetails.map(log => log.inputData).join('\n') || 'No input data'}
                         className="w-full h-32 border border-gray-300 p-2"
-                        rows={logDetails.length}
+                        rows={num}
                     />
                 </div>
             )}
