@@ -364,7 +364,7 @@ export default function TeamPage() {
                                 disabled={isModalLoading}
                             />
                             <div className="text-sm text-gray-500 mb-4">
-                                <p>For Add, you can add multiple Team's data, each in a different line.</p>
+                                <p>For Add, you can add multiple Team data, each in a different line.</p>
                                 <p>Add the fields of each Team and ensure that each line follows the format below.</p>
                                 <p>Format: <span className="font-bold">{"<Team Name> <Registration date in DD/MM> <Team's Group Number>"}</span></p>
                                 <p>Example: <span className="font-bold">firstTeam 17/05 2</span></p>
@@ -401,7 +401,7 @@ export default function TeamPage() {
                                 disabled={isModalLoading}
                             />
                             <div className="text-sm text-gray-500 mb-4">
-                                <p>For Edit, you can only change this team's data.</p>
+                                <p>For Edit, you can only change this team data.</p>
                                 <p>Replace the fields that you want to edit.</p>
                                 <p>Format: <span className="font-bold">{"<Team Name> <Registration date in DD/MM> <Team's Group Number>"}</span></p>
                                 <p>Example: <span className="font-bold">firstTeam 17/05 2</span></p>
