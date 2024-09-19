@@ -13,15 +13,17 @@ export default function MatchesPage() {
     const [matches, setMatches] = useState<MatchInput[]>([]);
     const [showMatchesModal, setShowMatchesModal] = useState(false);
     const [matchesInput, setMatchesInput] = useState('');
+
     const [matchError, setMatchError] = useState('');
+    const [pageError, setPageError] = useState('')
 
     const [matchToBeEditted, setMatchToBeEditted] = useState<MatchInput | null>(null);
     const [editInput, setEditInput] = useState('');
     const [showEditModal, setShowEditModal] = useState(false)
 
     const [isPageLoading, setIsPageLoading] = useState(false);
-    const [isAddModalLoading, setIsAddModalLoading] = useState(false);
-    const [isEditModalLoading, setIsEditModalLoading] = useState(false);
+    const [isModalLoading, setIsModalLoading] = useState(false);
+    const [isDeleteLoading, setIsDeleteLoading] = useState(false);
 
     const {userId} = useAuth();
     const isAddMatchesDisabled = matches.length >= 30;
@@ -33,12 +35,12 @@ export default function MatchesPage() {
                 try {
                     const response = await fetch(`/api/matches?userId=${userId}`);
                     if (!response.ok) {
-                        throw new Error('Network response not ok');
+                        setPageError('Error matching matches. Please refresh the page. If the problem persist, please delete all data and try again.')
                     }
                     const data = await response.json() as MatchesGetResponse;
                     setMatches(data.matches);
                 } catch (error) {
-                    console.error('Error fetching matches:', error);
+                    setPageError('Error matching matches. Please refresh the page. If the problem persist, please delete all data and try again.')
                 } finally {
                     setIsPageLoading(false)
                 }
@@ -48,83 +50,87 @@ export default function MatchesPage() {
                 await fetchMatches();
             };
     
-            fetchData().catch(error => console.error('Error in fetching data:', error));
+            fetchData().catch(() => {
+                setPageError('Something went wrong. Please refresh the page. If problem persist please delete all data and try again.')
+            });
         }
     }, [userId]);
 
     const handleMatchSubmit = async () => {
-        // Check if data is entered
-        if (!matchesInput.trim()) {
-            setMatchError('No data entered!')
-            return 
-        }
-        const userInput = matchesInput.split('\n').filter(line => line.trim() != '')
-
-        const checkExistingMatches = new Set(matches.map(matchResult => `${matchResult.team1}_${matchResult.team2}`))
-
-        for (let x = 0; x < userInput.length; x++) {
-            const line = userInput[x]
-
-            if (!line) {
-                setMatchError(`Error on line ${x + 1}: Invalid input. Refresh the page and try again if error persist.`);
-                return; 
-            }
-
-            const fields = line.trim().split(/\s+/);
-
-            // Check for correct number of fields
-            if (fields.length !== 4) {
-                setMatchError(`Error on line ${x + 1}: Each line must contain exactly 4 fields (Team 1, Team 2, Team 1 goals, Team 2 goals).`);
-                return
-            }
-
-            const [team1, team2, score1, score2] = fields;
-
-            if (!team1 || !team2 || !score1 || !score2) {
-                setMatchError(`Error on line ${x + 1}: All fields are required (Team 1, Team 2, Team 1 goals, Team 2 goals)`);
-                return;
-            }
-
-            // Check to ensure both team names are not the same
-            if (team1 === team2) {
-                setMatchError(`Error on line ${x + 1}: Team 1 and Team 2 cannot be the same.`);
-                return;
-            }
-
-            const score1num = parseInt(score1);
-            const score2num = parseInt(score2);
-
-            // Check that the scores are legit numbers
-            if (isNaN(score1num) || isNaN(score2num)) {
-                setMatchError(`Error on line ${x + 1}: Scores must be valid numbers.`);
-                return;
-            }
-
-            // Check that the scores are not negative
-            if (score1num < 0 || score2num < 0) {
-                setMatchError(`Error on line ${x + 1}: Scores cannot be negative.`);
-                return;
-            }
-
-            const comName1 = team1 + '_' + team2;
-            const comName2 = team2 + '_' + team1;
-
-            // Check that the teams have not played against each other yet
-            if (checkExistingMatches.has(comName1) || checkExistingMatches.has(comName2)) {
-                setMatchError(`Error on line ${x + 1}: Teams ${team1} and ${team2} have already played against each other. Check current inputs or previously added match results`);
-                return;
-            }
-            checkExistingMatches.add(comName1)
-        }
-
-        setMatchError('');
-        const userData = userInput.map(line => {
-            const [team1, team2, score1, score2] = line.trim().split(/\s+/);
-            return {team1, team2, score1, score2};
-        });
-        const userIdInput = userId
+        setIsModalLoading(true)
 
         try {
+            // Check if data is entered
+            if (!matchesInput.trim()) {
+                setMatchError('No data entered!')
+                return 
+            }
+            const userInput = matchesInput.split('\n').filter(line => line.trim() != '')
+
+            const checkExistingMatches = new Set(matches.map(matchResult => `${matchResult.team1}_${matchResult.team2}`))
+
+            for (let x = 0; x < userInput.length; x++) {
+                const line = userInput[x]
+
+                if (!line) {
+                    setMatchError(`Error on line ${x + 1}: Invalid input. Refresh the page and try again if error persist.`);
+                    return; 
+                }
+
+                const fields = line.trim().split(/\s+/);
+
+                // Check for correct number of fields
+                if (fields.length !== 4) {
+                    setMatchError(`Error on line ${x + 1}: Each line must contain exactly 4 fields (Team 1, Team 2, Team 1 goals, Team 2 goals).`);
+                    return
+                }
+
+                const [team1, team2, score1, score2] = fields;
+
+                if (!team1 || !team2 || !score1 || !score2) {
+                    setMatchError(`Error on line ${x + 1}: All fields are required (Team 1, Team 2, Team 1 goals, Team 2 goals)`);
+                    return;
+                }
+
+                // Check to ensure both team names are not the same
+                if (team1 === team2) {
+                    setMatchError(`Error on line ${x + 1}: Team 1 and Team 2 cannot be the same.`);
+                    return;
+                }
+
+                const score1num = parseInt(score1);
+                const score2num = parseInt(score2);
+
+                // Check that the scores are legit numbers
+                if (isNaN(score1num) || isNaN(score2num)) {
+                    setMatchError(`Error on line ${x + 1}: Scores must be valid numbers.`);
+                    return;
+                }
+
+                // Check that the scores are not negative
+                if (score1num < 0 || score2num < 0) {
+                    setMatchError(`Error on line ${x + 1}: Scores cannot be negative.`);
+                    return;
+                }
+
+                const comName1 = team1 + '_' + team2;
+                const comName2 = team2 + '_' + team1;
+
+                // Check that the teams have not played against each other yet
+                if (checkExistingMatches.has(comName1) || checkExistingMatches.has(comName2)) {
+                    setMatchError(`Error on line ${x + 1}: Teams ${team1} and ${team2} have already played against each other. Check current inputs or previously added match results`);
+                    return;
+                }
+                checkExistingMatches.add(comName1)
+            }
+
+            setMatchError('');
+            const userData = userInput.map(line => {
+                const [team1, team2, score1, score2] = line.trim().split(/\s+/);
+                return {team1, team2, score1, score2};
+            });
+            const userIdInput = userId
+
             const response = await fetch('/api/matches', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json' },
@@ -140,18 +146,26 @@ export default function MatchesPage() {
                 alert('Match data has been added successfully!')
             } else {
                 const error = await response.json() as ErrorResponse;
-                setMatchError(`${error.message}`);
+                if (response.status === 400) {
+                    setMatchError(`${error.message}`);
+                } else {
+                    setMatchError(`Something went wrong. Please refresh the page. If problem persists, please delete all data and try again.`)
+                }
             }
 
         } catch (error) {
-            setMatchError('Error occured while submitting the data. Please try again!');
+            setMatchError('Error occured while submitting the data. Please refresh the page. If problem persists, please delete all data and try again.');
+        } finally {
+            setIsModalLoading(false)
         }
     }
 
     const handleDeleteAllData = async() => {
         if (!window.confirm("Are you sure you want to delete all team and match data? This action cannot be undone.")) {
             return
-        } try {
+        } 
+        setIsDeleteLoading(true)
+        try {
             const response = await fetch(`/api/deleteAll?userId=${userId}`, {
                 method: 'DELETE',
             })
@@ -160,14 +174,12 @@ export default function MatchesPage() {
                 setMatches([]);
                 alert('All team and match data has been deleted.');
             } else {
-                const error = await response.json() as ErrorResponse;
-                console.error('Error deleting data:', error.message);
                 alert('Failed to delete data.');
             }
         } catch (error) {
-            const e = error as Error;
-            console.error('Error occurred during deletion:', e.message);
             alert('An error occurred while deleting the data.');
+        } finally {
+            setIsDeleteLoading(false)
         }
     }
 
@@ -178,52 +190,53 @@ export default function MatchesPage() {
     };
 
     const handleEditSubmit = async () => {
-        if (matchToBeEditted === null) {
-            return
-        }
-
-        // Check that no data is entered
-        if (editInput.trim().length === 0) {
-            setMatchError('No data entered!')
-            return
-        }
-
-        // Check that only 1 line of data is entered for editing
-        const numOfInputLines = editInput.trim().split('\n').length
-        if (numOfInputLines > 1) {
-            setMatchError('Only 1 line of input is accepted for editing.')
-            return
-        }
-
-        const [team1, team2, score1, score2] = editInput.trim().split(/\s+/);
-        if (!team1 || !team2 || !score1 || !score2) {
-            setMatchError('Must contain exactly 4 fields (Team 1, Team 2, Team 1 goals, Team 2 goals)');
-            return;
-        } 
-
-        // Check that both team name are not the same
-        if (team1 === team2) {
-            setMatchError('Both team names cannot be the same')
-            return
-        }
-
-        const score1num = parseInt(score1)
-        const score2num = parseInt(score2)
-
-        // Check that the score is legit
-        if (isNaN(score1num) || isNaN(score2num)) {
-            setMatchError('Scores must be valid numbers');
-            return;
-        }
-        
-        // Check that the scores are not negative
-        if (score1num < 0 || score2num < 0) {
-            setMatchError('Scores cannot be negative');
-            return;
-        }
-
-        const trimmedInput = editInput.trim()
+        setIsModalLoading(true)
         try {
+            if (matchToBeEditted === null) {
+                return
+            }
+
+            // Check that no data is entered
+            if (editInput.trim().length === 0) {
+                setMatchError('No data entered!')
+                return
+            }
+
+            // Check that only 1 line of data is entered for editing
+            const numOfInputLines = editInput.trim().split('\n').length
+            if (numOfInputLines > 1) {
+                setMatchError('Only 1 line of input is accepted for editing.')
+                return
+            }
+
+            const [team1, team2, score1, score2] = editInput.trim().split(/\s+/);
+            if (!team1 || !team2 || !score1 || !score2) {
+                setMatchError('Must contain exactly 4 fields (Team 1, Team 2, Team 1 goals, Team 2 goals)');
+                return;
+            } 
+
+            // Check that both team name are not the same
+            if (team1 === team2) {
+                setMatchError('Both team names cannot be the same')
+                return
+            }
+
+            const score1num = parseInt(score1)
+            const score2num = parseInt(score2)
+
+            // Check that the score is legit
+            if (isNaN(score1num) || isNaN(score2num)) {
+                setMatchError('Scores must be valid numbers');
+                return;
+            }
+            
+            // Check that the scores are not negative
+            if (score1num < 0 || score2num < 0) {
+                setMatchError('Scores cannot be negative');
+                return;
+            }
+
+            const trimmedInput = editInput.trim()
             const response = await fetch('/api/matches', {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json',},
@@ -243,10 +256,16 @@ export default function MatchesPage() {
                 alert('Match results updated!')
             } else {
                 const error = await response.json() as ErrorResponse;
-                setMatchError(`Error: ${error.message}`);
+                if (response.status === 400 || response.status === 404) {
+                    setMatchError(`${error.message}`);
+                } else {
+                    setMatchError('Something went wrong. Please refresh the page. If problem persists, please delete all data and try again.')
+                }
             }
         } catch (error) {
-            setMatchError('Error occured while submitting the data. Please try again!')
+            setMatchError('Error occured while editing the data. Please refresh the page. If problem persists, please delete all data and try again.')
+        } finally {
+            setIsModalLoading(false)
         }
     }
 
@@ -256,6 +275,11 @@ export default function MatchesPage() {
                 <div className="flex justify-center items-center min-h-screen">
                     <p>Loading...</p>
                 </div>
+            ) :
+            pageError ? (
+                <div className="flex justify-center items-center min-h-screen">
+                    {pageError}
+                </div>
             ) : (
                 <>
                     <div className="flex justify-end mb-4 space-x-4 p-4">
@@ -264,8 +288,12 @@ export default function MatchesPage() {
                         >
                             {isAddMatchesDisabled ? 'Round 1 over!' : 'Add Match Results'}
                         </button>
-                        <button onClick={handleDeleteAllData} className="bg-red-500 text-white px-4 py-2 rounded-lg">
-                            Delete All Data
+                        <button 
+                            onClick={handleDeleteAllData}
+                            className={`px-4 py-2 rounded-lg ${isDeleteLoading ? 'bg-gray-500' : 'bg-red-500'} text-white`}
+                            disabled= {isDeleteLoading}
+                        >
+                            {isDeleteLoading? 'Deleting...' : 'Delete All Data'}
                         </button>
                     </div>
                     <div className="flex p-4 flex-grow justify-center space-x-8">
@@ -284,10 +312,16 @@ export default function MatchesPage() {
                                     rows={12}
                                     placeholder="Enter match data here..."
                                     className="rounded-lg w-full p-4 mt-2 text-lg border-2 border-black"
+                                    disabled={isModalLoading}
                                 />
                                 {matchError && <p className="text-red-500 mt-2">{matchError}</p>}
                                 <div className="flex justify-between mt-4 px-4">
-                                    <button onClick={handleMatchSubmit} className="px-4 py-2 text-white bg-green-500 border border-green-700 rounded-lg">Submit</button>
+                                    <button 
+                                        onClick={handleMatchSubmit} 
+                                        className={`px-4 py-2 rounded-lg ${isModalLoading ? 'bg-gray-500' : 'bg-green-500'} text-white`}
+                                    >
+                                        {isModalLoading? 'Submitting...': 'Submit'}
+                                    </button>
                                     <button onClick={() => {
                                         setMatchError('');
                                         setMatchesInput('');
@@ -306,12 +340,18 @@ export default function MatchesPage() {
                                     value={editInput}
                                     onChange={(e) => setEditInput(e.target.value)}
                                     rows={12}
-                                    placeholder="Enter teams data here..."
+                                    placeholder="Enter match data here..."
                                     className="rounded-lg p-4 mt-2 text-lg border-2 border-black mb-4"
+                                    disabled={isModalLoading}
                                 />
                                 {matchError && <p className="text-red-500 mt-2">{matchError}</p>}
                                 <div className="flex justify-between mt-4 px-4">
-                                    <button onClick={handleEditSubmit} className="px-4 py-2 text-white bg-green-500 border border-green-700 rounded-lg">Submit</button>
+                                    <button 
+                                        onClick={handleEditSubmit} 
+                                        className={`px-4 py-2 rounded-lg ${isModalLoading ? 'bg-gray-500' : 'bg-green-500'} text-white`}
+                                    >
+                                        {isModalLoading? 'Submitting...': 'Submit'}
+                                    </button>
                                     <button onClick={() => {
                                         setMatchError('');
                                         setEditInput('');
