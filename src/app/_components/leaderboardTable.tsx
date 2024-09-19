@@ -53,8 +53,9 @@ export default function LeaderBoardTable( {teamData, groupName}  : LeaderTablePr
 
             <div className="mt-4">
                 <p><span className="inline-block px-3 py-1 bg-green-200 text-black w-16">Green</span> - Teams moving to the next stage</p>
-                <p><span className="inline-block px-3 py-1 bg-red-200 text-black w-16">Red</span> - Teams did not qualify</p>
+                <p><span className="inline-block px-3 py-1 bg-red-200 text-black w-16">Red</span> - Teams that did not qualify</p>
             </div>
+            <p className="text-gray-500 mt-2 text-sm">* This is based on the current match results.</p>
         </div>
     )
 }

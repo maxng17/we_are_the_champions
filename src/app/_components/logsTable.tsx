@@ -50,7 +50,7 @@ export default function LogsTable( {logDatas}  : LeaderTableProps) {
                         })
                     ) : (
                         <tr>
-                            <td colSpan={3} className="px-4 py-2 border border-gray-300 text-center">No logs found!</td>
+                            <td colSpan={4} className="px-4 py-2 border border-gray-300 text-center">No logs found!</td>
                         </tr>
                     )}
                 </tbody>
