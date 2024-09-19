@@ -61,8 +61,21 @@ export default function TeamDetailPage() {
         }
     }, [teamName, userId]);
 
-    if (loading) return <div>Loading...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <p>Loading...</p>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <p className="text-red-500">{error}</p>
+            </div>
+        );
+    }
 
     if (!teamData) return <div>No such team.</div>;
 
@@ -80,7 +93,7 @@ export default function TeamDetailPage() {
                     <p><strong>Total Goals:</strong> {teamData.totalGoals}</p>
                     <p><strong>Matches Played:</strong> {matchData.length}</p>
                 </div>
-                <MatchesTable matches={matchData} />
+                <MatchesTable matches={matchData} teamName={teamName} />
             </div>
         </div>
     );
