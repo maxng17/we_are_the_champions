@@ -34,7 +34,9 @@ export async function GET(request: Request) {
             team2: matches.team2name,
             score1: matches.team1goals,
             score2: matches.team2goals,
-        }).from(matches).where(or(eq(matches.team1name, teamName),eq(matches.team2name, teamName)));
+        }).from(matches).where(
+            and(eq(matches.userId, userId),
+                or(eq(matches.team1name, teamName),eq(matches.team2name, teamName))));
 
         matchData.map(match => {
             const score1num = parseInt(match.score1)

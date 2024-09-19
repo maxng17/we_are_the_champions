@@ -24,84 +24,89 @@ interface MatchPutRequest {
 
 export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
-    const {userIdInput, userData} = (await request.json() as MatchPostRequest);
-    if (!userIdInput || !Array.isArray(userData)) {
-        return NextResponse.json({ message: request.body}, { status: 400 });
+    try {
+        const {userIdInput, userData} = (await request.json() as MatchPostRequest);
+        if (!userIdInput || !Array.isArray(userData)) {
+            return NextResponse.json({ message: request.body}, { status: 400 });
+        }
+
+        const teamDatas = await db.select().from(teams).where(eq(teams.userId, userIdInput));
+        const checkTeamNames = new Set(teamDatas.map(teamData => teamData.name));
+        const checkSameGroup = new Map(teamDatas.map(teamData => [teamData.name, teamData.group] ))
+
+        const matchDatas = await db.select().from(matches).where(eq(matches.userId, userIdInput));
+        const checkExistingMatchesName = new Set(matchDatas.map(matchData => `${matchData.team1name}_${matchData.team2name}`))
+
+        let lineNum = 1;
+
+        //Checks here before adding all new inputs
+        for (const item of userData) {
+            const team1name = item.team1;
+            const team2name = item.team2;
+            
+            // Check legit team name for team1
+            if (!checkTeamNames.has(team1name)) {
+                return NextResponse.json({message: `Error on line ${lineNum}: Team '${team1name}' does not exist.`}, {status: 400})
+            }
+
+            // Check legit team name for team2
+            if (!checkTeamNames.has(team2name)) {
+                return NextResponse.json({message: `Error on line ${lineNum}: Team '${team2name}' does not exist.`}, {status: 400})
+            }
+
+            const comName1 = team1name + "_" + team2name
+            const comName2 = team2name + "_" + team1name
+
+            // Check to make sure they never played against each other yet
+            if (checkExistingMatchesName.has(comName1) || checkExistingMatchesName.has(comName2)) {
+                return NextResponse.json(
+                    {message: `Error on line ${lineNum}: Teams '${team1name}' and '${team2name}' have already played against each other. Check current inputs or previously added match results.`}
+                        , {status : 400})
+            }
+
+            // Check to make sure they are in the same group
+            if (checkSameGroup.get(team1name) !== checkSameGroup.get(team2name)) {
+                return NextResponse.json(
+                    {message: `Error on line ${lineNum}:  Teams '${team1name}' and '${team2name}' are not in the same group.`}
+                        , {status : 400})
+            }
+
+            lineNum += 1;
+        }
+
+        const groupId = crypto.randomUUID();
+
+        for (const item of userData) {
+            const team1name = item.team1;
+            const team2name = item.team2;
+            const team1goals = item.score1;
+            const team2goals = item.score2;
+
+            const reConstructInput = team1name + ' ' + team2name + ' ' + team1goals + ' ' + team2goals
+            
+            await db.insert(matches).values({
+                userId: userIdInput,
+                team1goals:team1goals,
+                team1name:team1name,
+                team2goals:team2goals,
+                team2name:team2name,
+            })
+
+            await db.insert(logs).values({
+                userId : userIdInput,
+                operation : "ADD",
+                dataType : "MATCHES",
+                inputData :reConstructInput,
+                groupId : groupId,
+            })
+        }
+
+
+        return NextResponse.json({message: 'ok'}, {status: 200})
+    } catch (error) {
+        const e = error as Error;
+        return NextResponse.json({ message: e.message }, { status: 500 });
     }
-
-    const teamDatas = await db.select().from(teams).where(eq(teams.userId, userIdInput));
-    const checkTeamNames = new Set(teamDatas.map(teamData => teamData.name));
-    const checkSameGroup = new Map(teamDatas.map(teamData => [teamData.name, teamData.group] ))
-
-    const matchDatas = await db.select().from(matches).where(eq(matches.userId, userIdInput));
-    const checkExistingMatchesName = new Set(matchDatas.map(matchData => `${matchData.team1name}_${matchData.team2name}`))
-
-    let lineNum = 1;
-
-    //Checks here before adding all new inputs
-    for (const item of userData) {
-        const team1name = item.team1;
-        const team2name = item.team2;
-         
-        // Check legit team name for team1
-        if (!checkTeamNames.has(team1name)) {
-            return NextResponse.json({message: `Error on line ${lineNum}: Team '${team1name}' does not exist.`}, {status: 400})
-        }
-
-        // Check legit team name for team2
-        if (!checkTeamNames.has(team2name)) {
-            return NextResponse.json({message: `Error on line ${lineNum}: Team '${team2name}' does not exist.`}, {status: 400})
-        }
-
-        const comName1 = team1name + "_" + team2name
-        const comName2 = team2name + "_" + team1name
-
-        // Check to make sure they never played against each other yet
-        if (checkExistingMatchesName.has(comName1) || checkExistingMatchesName.has(comName2)) {
-            return NextResponse.json(
-                {message: `Error on line ${lineNum}: Teams '${team1name}' and '${team2name}' have already played against each other. Check current inputs or previously added match results.`}
-                    , {status : 400})
-        }
-
-        // Check to make sure they are in the same group
-        if (checkSameGroup.get(team1name) !== checkSameGroup.get(team2name)) {
-            return NextResponse.json(
-                {message: `Error on line ${lineNum}:  Teams '${team1name}' and '${team2name}' are not in the same group.`}
-                    , {status : 400})
-        }
-
-        lineNum += 1;
-    }
-
-    const groupId = crypto.randomUUID();
-
-    for (const item of userData) {
-        const team1name = item.team1;
-        const team2name = item.team2;
-        const team1goals = item.score1;
-        const team2goals = item.score2;
-
-        const reConstructInput = team1name + ' ' + team2name + ' ' + team1goals + ' ' + team2goals
-         
-        await db.insert(matches).values({
-            userId: userIdInput,
-            team1goals:team1goals,
-            team1name:team1name,
-            team2goals:team2goals,
-            team2name:team2name,
-        })
-
-        await db.insert(logs).values({
-            userId : userIdInput,
-            operation : "ADD",
-            dataType : "MATCHES",
-            inputData :reConstructInput,
-            groupId : groupId,
-        })
-    }
-
-
-    return NextResponse.json({message: 'ok'}, {status: 200})
 }
 
 export async function GET(request: Request) {
@@ -122,8 +127,8 @@ export async function GET(request: Request) {
 
         return NextResponse.json({ matches: matchesRecords }, {status: 200});
     } catch (error) {
-        console.error('Error fetching teams:', error);
-        return NextResponse.json({message: 'Failed to fetch teams'}, {status: 500});
+        const e = error as Error;
+        return NextResponse.json({ message: e.message }, { status: 500 });
     }
 
 }
@@ -222,7 +227,7 @@ export async function PUT(request: Request) {
             return NextResponse.json({ status: 204 });
         }
     } catch (error) {
-        console.error("Error updating match:", error);
-        return NextResponse.json({ message: "Failed to update match" }, { status: 500 });
+        const e = error as Error;
+        return NextResponse.json({ message: e.message }, { status: 500 });
     }
 }

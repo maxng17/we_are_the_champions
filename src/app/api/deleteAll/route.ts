@@ -38,7 +38,7 @@ export async function DELETE(request: Request) {
 
         return NextResponse.json({ message: "ok" }, { status: 200 });
     } catch (error) {
-        console.error('Error deleting teams and matches:', error);
-        return NextResponse.json({ message: "Failed to delete teams and matches" }, { status: 500 });
+        const e = error as Error;
+        return NextResponse.json({ message: e.message }, { status: 500 });
     }
 }

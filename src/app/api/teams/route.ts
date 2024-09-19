@@ -23,38 +23,43 @@ interface TeamPutRequest {
 
 export const dynamic = "force-dynamic";
 export async function POST(request: Request) {
-    const {userIdInput, userData} = (await request.json() as TeamPostRequest);
-    if (!userIdInput || !Array.isArray(userData)) {
-        return NextResponse.json({ error: request.body}, { status: 400 });
+    try {
+        const {userIdInput, userData} = (await request.json() as TeamPostRequest);
+        if (!userIdInput || !Array.isArray(userData)) {
+            return NextResponse.json({ error: request.body}, { status: 400 });
+        }
+
+        const groupId = crypto.randomUUID();
+
+        for (const item of userData) {
+            const teamName = item.name;
+            const regDate = item.registrationDate;
+            const groupNumber = item.groupNumber;
+
+            const reConstructInput = teamName + ' ' + regDate + ' ' + groupNumber
+
+            await db.insert(teams).values({
+                userId: userIdInput,
+                name: teamName,
+                group: groupNumber,
+                regDate: regDate,
+            })
+
+            await db.insert(logs).values({
+                userId : userIdInput,
+                operation : 'ADD',
+                dataType : 'TEAMS',
+                inputData : reConstructInput,
+                groupId: groupId
+            });
+        
+        }
+
+        return NextResponse.json({ message: 'ok' }, { status: 200 }); 
+    } catch (error) {
+        const e = error as Error;
+        return NextResponse.json({ message: e.message }, { status: 500 });
     }
-
-    const groupId = crypto.randomUUID();
-
-    for (const item of userData) {
-        const teamName = item.name;
-        const regDate = item.registrationDate;
-        const groupNumber = item.groupNumber;
-
-        const reConstructInput = teamName + ' ' + regDate + ' ' + groupNumber
-
-        await db.insert(teams).values({
-            userId: userIdInput,
-            name: teamName,
-            group: groupNumber,
-            regDate: regDate,
-        })
-
-        await db.insert(logs).values({
-            userId : userIdInput,
-            operation : 'ADD',
-            dataType : 'TEAMS',
-            inputData : reConstructInput,
-            groupId: groupId
-        });
-    
-    }
-
-    return NextResponse.json({ message: 'ok' }, { status: 200 }); 
 }
 
 export async function GET(request: Request) {
@@ -74,8 +79,8 @@ export async function GET(request: Request) {
 
         return NextResponse.json({ teams: teamRecords }, { status: 200 });
     } catch (error) {
-        console.error('Error fetching teams:', error);
-        return NextResponse.json({ message: 'Failed to fetch teams' }, { status: 500 });
+        const e = error as Error;
+        return NextResponse.json({ message: e.message }, { status: 500 });
     }
 }
 
@@ -151,7 +156,7 @@ export async function PUT(request: Request) {
 
         return NextResponse.json({ status: 204 }); 
     } catch (error) {
-        console.error("Error updating team:", error);
-        return NextResponse.json({ message: 'Failed to update team data' }, { status: 500 });
+        const e = error as Error;
+        return NextResponse.json({ message: e.message }, { status: 500 });
     }
 }

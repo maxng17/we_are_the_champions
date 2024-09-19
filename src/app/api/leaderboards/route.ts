@@ -93,7 +93,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json({group1: group1, group2: group2}, {status:200})
     } catch (error) {
-        console.error('Error fetching teams:', error);
-        return NextResponse.json({message: 'Failed to fetch data'}, {status: 500});
+        const e = error as Error;
+        return NextResponse.json({ message: e.message }, { status: 500 });
     }
 }
