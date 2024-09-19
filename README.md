@@ -5,6 +5,12 @@ This is my submission for Govtech's 2025 TAP assignment.
 This application is being hosted on vercel and can be accessed below.<br>
 https://we-are-the-champions-sigma.vercel.app/
 
+
+### Sign Up
+Use any proper email or any prefix with @gmail.com and strong password. I did not set email verification for ease of testing the website for testers.<br>
+Example email -> test@gmail.com<br>
+Password -> (Any strong password)
+
 ## Assumptions & Intepretation
 1) Each team name should be unique, but teamA and teama, are considered as the different team names. This is accepted behaviour.
 2) Leaderboards will show teams that are qualified based on the current match result inputs. So at the start, if all teams are added but not any match results, it will show the earliest registered team to have qualified based on conditions given.
