@@ -92,8 +92,7 @@ export async function GET(request: Request) {
         const group2 = sortedTeams.filter(record => record.groupNumber === '2');
 
         return NextResponse.json({group1: group1, group2: group2}, {status:200})
-    } catch (error) {
-        const e = error as Error;
-        return NextResponse.json({ message: e.message }, { status: 500 });
+    } catch {
+        return NextResponse.json({ message: 'Failed to get leaderboards data' }, { status: 500 });
     }
 }

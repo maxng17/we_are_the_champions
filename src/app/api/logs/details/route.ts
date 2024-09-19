@@ -27,8 +27,7 @@ export async function GET(request : Request) {
         }
 
         return NextResponse.json({logsDetails: logDatas}, {status: 200})
-    } catch (error) {
-        const e = error as Error
-        return NextResponse.json({ message: e.message }, { status: 500 });
+    } catch {
+        return NextResponse.json({ message: 'Failed to get data related to the logs.' }, { status: 500 });
     }
 }

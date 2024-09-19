@@ -39,7 +39,7 @@ export default function MatchesPage() {
                     }
                     const data = await response.json() as MatchesGetResponse;
                     setMatches(data.matches);
-                } catch (error) {
+                } catch {
                     setPageError('Error matching matches. Please refresh the page. If the problem persist, please delete all data and try again.')
                 } finally {
                     setIsPageLoading(false)
@@ -153,7 +153,7 @@ export default function MatchesPage() {
                 }
             }
 
-        } catch (error) {
+        } catch {
             setMatchError('Error occured while submitting the data. Please refresh the page. If problem persists, please delete all data and try again.');
         } finally {
             setIsModalLoading(false)
@@ -176,7 +176,7 @@ export default function MatchesPage() {
             } else {
                 alert('Failed to delete data.');
             }
-        } catch (error) {
+        } catch {
             alert('An error occurred while deleting the data.');
         } finally {
             setIsDeleteLoading(false)
@@ -262,7 +262,7 @@ export default function MatchesPage() {
                     setMatchError('Something went wrong. Please refresh the page. If problem persists, please delete all data and try again.')
                 }
             }
-        } catch (error) {
+        } catch {
             setMatchError('Error occured while editing the data. Please refresh the page. If problem persists, please delete all data and try again.')
         } finally {
             setIsModalLoading(false)

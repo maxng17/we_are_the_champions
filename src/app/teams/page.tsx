@@ -39,7 +39,7 @@ export default function TeamPage() {
                     }
                     const data = await response.json() as TeamsGetResponse;
                     setTeams(data.teams);
-                } catch (error) {
+                } catch {
                     setPageError('Error matching teams. Please refresh the page. If the problem persist, please delete all data and try again.')
                 } finally {
                     setIsPageLoading(false)
@@ -183,7 +183,7 @@ export default function TeamPage() {
                     setTeamError(`Something went wrong. Please refresh the page. If problem persists, please delete all data and try again.`)
                 }
             }
-        } catch (error) {
+        } catch {
             setTeamError('Error occured while submitting the data. Please refresh the page. If problem persists, please delete all data and try again.')
         } finally {
             setIsModalLoading(false)
@@ -206,7 +206,7 @@ export default function TeamPage() {
             } else {
                 alert('Failed to delete data.');
             }
-        } catch (error) {
+        } catch {
             alert('An error occurred while deleting the data.');
         } finally {
             setIsDeleteLoading(false)
@@ -311,7 +311,7 @@ export default function TeamPage() {
                     setTeamError('Something went wrong. Please refresh the page. If problem persists, please delete all data and try again.')
                 }
             }
-        } catch (error) {
+        } catch {
             setTeamError('Error occured while editing the data. Please refresh the page. If problem persists, please delete all data and try again.')
         } finally {
             setIsModalLoading(false)

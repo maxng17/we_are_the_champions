@@ -30,7 +30,7 @@ export default function LeaderboardPage() {
                     const data = await response.json() as LeaderboardsGetResponse;
                     setGroup1Data(data.group1);
                     setGroup2Data(data.group2);
-                } catch (error) {
+                } catch {
                     // Error here is unexpected, refresh page to retry
                     setError('Failed to load leaderboard data. Please refresh the page. If problem persist please delete all data and try again.');
                 } finally {

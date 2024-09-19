@@ -56,9 +56,8 @@ export async function POST(request: Request) {
         }
 
         return NextResponse.json({ message: 'ok' }, { status: 200 }); 
-    } catch (error) {
-        const e = error as Error;
-        return NextResponse.json({ message: e.message }, { status: 500 });
+    } catch {
+        return NextResponse.json({ message: 'Failed to upload team data.' }, { status: 500 });
     }
 }
 
@@ -78,9 +77,8 @@ export async function GET(request: Request) {
         }).from(teams).where(eq(teams.userId, userId));
 
         return NextResponse.json({ teams: teamRecords }, { status: 200 });
-    } catch (error) {
-        const e = error as Error;
-        return NextResponse.json({ message: e.message }, { status: 500 });
+    } catch {
+        return NextResponse.json({ message: 'Failed to get team data.' }, { status: 500 });
     }
 }
 
@@ -155,8 +153,7 @@ export async function PUT(request: Request) {
         })
 
         return NextResponse.json({ status: 204 }); 
-    } catch (error) {
-        const e = error as Error;
-        return NextResponse.json({ message: e.message }, { status: 500 });
+    } catch {
+        return NextResponse.json({ message: 'Failed to update team data' }, { status: 500 });
     }
 }

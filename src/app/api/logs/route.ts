@@ -40,7 +40,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json({sortedResults: sortedResults}, {status: 200});
 
-    } catch (error) {
+    } catch {
         return NextResponse.json({message: 'Failed to fetch logs'}, {status: 500});
     }
 

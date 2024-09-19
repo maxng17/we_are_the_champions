@@ -3,7 +3,7 @@
 import { useAuth } from "@clerk/nextjs"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
-import { LogDetails } from "~/app/_types/types";
+import { type LogDetails } from "~/app/_types/types";
 
 interface LogDetailGetResponse {
     logsDetails: LogDetails[]
@@ -37,7 +37,7 @@ export default function LogDetailPage() {
                         const data = await response.json() as LogDetailGetResponse;
                         setLogDetails(data.logsDetails)
                     }
-                } catch (error) {
+                } catch {
                     setError('Failed to load logs data. Please refresh the page.');
                 } finally {
                     setLoading(false)
@@ -46,7 +46,7 @@ export default function LogDetailPage() {
             const fetchData = async () => {
                 await fetchTeam();
             };
-            fetchData().catch(error => {
+            fetchData().catch(() => {
                 setError("Something went wrong. Please refresh the page. If problem persist please delete all data and try again."); 
             });
         }

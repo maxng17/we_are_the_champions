@@ -103,9 +103,8 @@ export async function POST(request: Request) {
 
 
         return NextResponse.json({message: 'ok'}, {status: 200})
-    } catch (error) {
-        const e = error as Error;
-        return NextResponse.json({ message: e.message }, { status: 500 });
+    } catch {
+        return NextResponse.json({ message: 'Failed to upload match results data.' }, { status: 500 });
     }
 }
 
@@ -126,9 +125,8 @@ export async function GET(request: Request) {
         }).from(matches).where(eq(matches.userId, userId))
 
         return NextResponse.json({ matches: matchesRecords }, {status: 200});
-    } catch (error) {
-        const e = error as Error;
-        return NextResponse.json({ message: e.message }, { status: 500 });
+    } catch {
+        return NextResponse.json({ message: 'Failed to get match results data.' }, { status: 500 });
     }
 
 }
@@ -226,8 +224,7 @@ export async function PUT(request: Request) {
 
             return NextResponse.json({ status: 204 });
         }
-    } catch (error) {
-        const e = error as Error;
-        return NextResponse.json({ message: e.message }, { status: 500 });
+    } catch {
+        return NextResponse.json({ message: 'Failed to update match results.' }, { status: 500 });
     }
 }

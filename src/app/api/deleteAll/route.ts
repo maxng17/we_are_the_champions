@@ -37,8 +37,7 @@ export async function DELETE(request: Request) {
         })
 
         return NextResponse.json({ message: "ok" }, { status: 200 });
-    } catch (error) {
-        const e = error as Error;
-        return NextResponse.json({ message: e.message }, { status: 500 });
+    } catch {
+        return NextResponse.json({ message: 'Failed to delete data' }, { status: 500 });
     }
 }

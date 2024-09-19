@@ -28,7 +28,7 @@ export default function LogPage() {
                     }
                     const data = await response.json() as DataLogGetResponse;
                     setDataLogs(data.sortedResults)
-                } catch (error) {
+                } catch {
                     setError('Failed to load logs data. Please refresh the page.');
                 } finally {
                     setLoading(false)
