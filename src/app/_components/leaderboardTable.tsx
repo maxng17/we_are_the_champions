@@ -50,6 +50,11 @@ export default function LeaderBoardTable( {teamData, groupName}  : LeaderTablePr
                     )}
                 </tbody>
             </table>
+
+            <div className="mt-4">
+                <p><span className="inline-block px-3 py-1 bg-green-200 text-black w-16">Green</span> - Teams moving to the next stage</p>
+                <p><span className="inline-block px-3 py-1 bg-red-200 text-black w-16">Red</span> - Teams did not qualify</p>
+            </div>
         </div>
     )
 }
